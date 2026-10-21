@@ -127,6 +127,7 @@ a { color: inherit; }
 .header-row { display: flex; align-items: center; justify-content: space-between; height: 72px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.02em; text-decoration: none; font-size: 16px; }
 .brand-tld { color: var(--muted); font-weight: 500; }
+.brand-mark { display: block; width: 28px; height: 28px; border-radius: 7px; box-shadow: 0 0 0 1px var(--border); }
 .icon-btn {
     display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 999px;
     border: 1px solid var(--border); background: none; cursor: pointer; color: var(--ink-2);
@@ -142,19 +143,20 @@ a { color: inherit; }
     :root:not([data-theme="light"]) .icon-moon { display: none; }
 }
 
-/* Hero: headline and intro, then the eroding banknotes full width with the dollar values under them. */
+/* Hero: headline and intro, then five dollar bills burned by lost buying power, with their values. */
 .hero { padding: 40px 0 56px; }
-.hero-text { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; align-items: end; }
-@media (max-width: 860px) { .hero-text { grid-template-columns: 1fr; gap: 0; } .hero { padding: 20px 0 40px; } }
+/* Headline and intro read as one block on the left; the bills carry the width below. */
+.hero-text { max-width: 760px; }
+@media (max-width: 860px) { .hero { padding: 20px 0 40px; } }
 .hero h1 {
     font-family: var(--font-display); font-weight: 600;
-    font-size: clamp(46px, 7.4vw, 92px); line-height: 0.96; letter-spacing: -0.055em; max-width: 9ch;
+    font-size: clamp(44px, 7vw, 86px); line-height: 1.02; letter-spacing: -0.042em;
+    text-wrap: balance;
 }
 .hero h1 em { font-style: normal; color: var(--accent); }
-.intro { font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 36ch; padding-bottom: 8px; }
-@media (max-width: 860px) { .intro { margin-top: 22px; } }
+.intro { margin-top: 22px; font-size: clamp(17px, 1.7vw, 20px); line-height: 1.55; color: var(--ink-2); max-width: 46ch; text-wrap: pretty; }
 
-.sequence { margin-top: 40px; }
+.sequence { margin-top: 48px; }
 /* Five bills of the same size; each one is burned by the share of buying power lost. */
 .dollar-steps {
     list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
