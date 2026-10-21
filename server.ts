@@ -1,10 +1,13 @@
+const root = import.meta.dir;
+
 const server = Bun.serve({
-  port: 3000,
+  port: Number(process.env.PORT) || 3000,
   async fetch(req) {
     const url = new URL(req.url);
-    let path = url.pathname === "/" ? "/index.html" : url.pathname;
+    const path = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
+    if (path.includes("..")) return new Response("Bad Request", { status: 400 });
 
-    const file = Bun.file(`.${path}`);
+    const file = Bun.file(`${root}${path}`);
 
     if (await file.exists()) {
       return new Response(file);
