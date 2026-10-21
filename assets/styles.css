@@ -249,7 +249,7 @@ a { color: inherit; }
 .year-input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 30%, transparent); }
 .year-ticks { position: relative; height: 18px; margin: 0 11px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .year-ticks span { position: absolute; transform: translateX(-50%); }
-@media (max-width: 600px) { .year-ticks span:nth-child(even) { display: none; } }
+
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
 .chip {
@@ -451,16 +451,6 @@ button, .asset-open, a { -webkit-tap-highlight-color: transparent; }
     .chart-legend li { display: inline-flex; align-items: center; gap: 6px; }
     .chart-legend i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
     .chart-box { margin-top: 10px; }
-    .period-value { font-size: 22px; }
-    /* Quick periods: one row you can swipe, instead of several stacked rows. */
-    .chips {
-        flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; scroll-padding-inline: 18px;
-        margin: 18px -18px 0; padding: 18px 18px 2px;
-        -webkit-mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
-        mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
-    }
-    .chips::-webkit-scrollbar { display: none; }
-    .chip { flex: none; scroll-snap-align: start; }
     .m-title { font-size: 30px; }
     .modal-body { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
 }
@@ -475,3 +465,25 @@ button, .asset-open, a { -webkit-tap-highlight-color: transparent; }
     .dollar-steps { gap: 6px; }
 }
 :lang(ka) .hero h1 { font-size: clamp(30px, 9.2vw, 72px); }
+
+/* ---------- Phones: calmer, larger, aligned ---------- */
+@media (max-width: 600px) {
+    .hero { padding: 16px 0 36px; }
+    .sequence { margin-top: 32px; }
+    /* Three bills (start, middle, end) instead of five, so each one is big enough to read. */
+    .dollar-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .dollar-steps li:nth-child(2), .dollar-steps li:nth-child(4) { display: none; }
+    .dollar-steps strong { font-size: 20px; margin-top: 12px; }
+    .sequence-caption { text-align: left; margin-top: 14px; }
+
+    .controls { padding: 20px 18px; margin-bottom: 48px; }
+    .controls-row { gap: 20px; }
+    .amount-input { height: 52px; font-size: 24px; }
+    /* Label above the value, the same as "Amount". */
+    .period-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .period-value { font-size: 22px; }
+    .year-ticks span { display: none; }
+    .year-ticks span:nth-child(3n + 1) { display: block; }   /* 1930, 1960, 1990, 2020 */
+    .chips { gap: 8px; margin-top: 16px; padding-top: 16px; }
+    .chip { padding: 6px 12px; font-size: 13px; }
+}
