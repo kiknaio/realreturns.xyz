@@ -164,23 +164,117 @@
 
     // ---------- Intro ----------
     // What one dollar from the start of the period buys at five points, one under each note in the image.
+    // ---------- Burned bills ----------
+    // One bill image, burned from the corners inward. The burned share of each bill equals the
+    // share of buying power lost. A seeded noise field decides the order in which pixels burn, so
+    // more loss only adds to what was already gone.
+    const burn = { base: null, field: null, sorted: null, w: 600, h: 258, ready: null };
+
+    function mulberry32(a) {
+        return () => {
+            a |= 0; a = (a + 0x6D2B79F5) | 0;
+            let t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
+    function makeNoise(seed) {
+        const rand = mulberry32(seed), P = 64;
+        const g = Float32Array.from({ length: P * P }, rand);
+        const at = (x, y) => g[(((y % P) + P) % P) * P + (((x % P) + P) % P)];
+        const s = t => t * t * (3 - 2 * t);
+        const value = (x, y) => {
+            const xi = Math.floor(x), yi = Math.floor(y), u = s(x - xi), v = s(y - yi);
+            const a = at(xi, yi), b = at(xi + 1, yi), c = at(xi, yi + 1), d = at(xi + 1, yi + 1);
+            return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+        };
+        return (x, y) => {
+            let sum = 0, amp = 0.5, f = 1;
+            for (let o = 0; o < 5; o++) { sum += amp * value(x * f, y * f); amp *= 0.5; f *= 2.1; }
+            return sum;
+        };
+    }
+
+    function loadBill() {
+        if (burn.ready) return burn.ready;
+        burn.ready = new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const { w, h } = burn;
+                const c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                const ctx = c.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(img, 0, 0, w, h);
+                burn.base = ctx.getImageData(0, 0, w, h);
+                // Low values burn first. The fire starts mostly at the lower right corner, less at the
+                // others, and noise at two scales makes the edge ragged instead of geometric.
+                const coarse = makeNoise(1913), fine = makeNoise(2025);
+                const corners = [[w, h, 0.62], [w, 0, 0.85], [0, h, 0.95], [0, 0, 1.15]];
+                const field = new Float32Array(w * h);
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        let dist = Infinity;
+                        for (const [cx, cy, weight] of corners) dist = Math.min(dist, weight * Math.hypot(x - cx, y - cy) / h);
+                        const edge = Math.min(x, w - x, y, h - y) / h;
+                        field[y * w + x] = 0.5 * dist + 0.18 * edge + 0.55 * coarse(x / 120, y / 120) + 0.12 * fine(x / 18, y / 18);
+                    }
+                }
+                burn.field = field;
+                burn.sorted = Float32Array.from(field).sort();
+                resolve();
+            };
+            img.onerror = reject;
+            img.src = 'assets/img/dollar.jpg';
+        });
+        return burn.ready;
+    }
+
+    function paintBill(canvas, lost) {
+        const { w, h, field, sorted, base } = burn;
+        const n = field.length;
+        const thr = lost <= 0 ? -Infinity : sorted[Math.min(n - 1, Math.floor(lost * n))];
+        const out = new ImageData(new Uint8ClampedArray(base.data), w, h);
+        const d = out.data;
+        const CHAR = 0.02, SCORCH = 0.11;
+        for (let i = 0; i < n; i++) {
+            const k = field[i] - thr, p = i * 4;
+            if (k < 0) { d[p + 3] = 0; continue; }            // burned away
+            if (k < CHAR) {                                      // charred rim, glowing at the very edge
+                const t = k / CHAR;
+                const ember = t < 0.25 ? (0.25 - t) * 2.4 : 0;
+                d[p] = 34 + 150 * ember; d[p + 1] = 24 + 40 * ember; d[p + 2] = 18;
+                continue;
+            }
+            if (k < SCORCH) {                                    // brown scorch fading into the paper
+                const t = Math.pow(1 - (k - CHAR) / (SCORCH - CHAR), 1.6);
+                d[p] = d[p] * (1 - 0.62 * t) + 92 * 0.62 * t;
+                d[p + 1] = d[p + 1] * (1 - 0.7 * t) + 52 * 0.7 * t;
+                d[p + 2] = d[p + 2] * (1 - 0.78 * t) + 22 * 0.78 * t;
+            }
+        }
+        canvas.getContext('2d').putImageData(out, 0, 0);
+    }
+
+    // What one dollar from the start of the period buys at five points, one bill each.
     function renderSteps() {
         const { from, to } = state;
         const n = to - from + 1;
         const years = [from, ...[0.25, 0.5, 0.75, 1].map(f => Math.round(from - 1 + f * n))];
         const items = $$('#dollarSteps li');
+        const losses = [];
         let cpi = 1, y = from;
         years.forEach((year, k) => {
             if (k > 0) for (; y <= year; y++) cpi *= 1 + D.inflation[idx(y)];
-            // Area, not width, follows the value, so the picture does not exaggerate the loss.
-            items[k].style.setProperty('--s', Math.sqrt(Math.min(1, 1 / cpi)).toFixed(3));
+            losses.push(Math.max(0, 1 - 1 / cpi));
             items[k].querySelector('strong').textContent = '$' + (1 / cpi).toFixed(2);
             items[k].querySelector('.step-year').textContent = String(year);
         });
         $('#dollarSteps').setAttribute('aria-label', `What one dollar from ${from} buys over time`);
         $('#seqCaption').textContent = from === to
-            ? `One dollar at the start of ${from}, and what it buys at the end of the year. Each bill's size matches its buying power.`
-            : `One dollar at the start of ${from}, and what it buys at the end of each year shown. Each bill's size matches its buying power.`;
+            ? `One dollar at the start of ${from}, and what it buys at the end of the year. The burned part is the buying power lost.`
+            : `One dollar at the start of ${from}, and what it buys at the end of each year shown. The burned part is the buying power lost.`;
+        loadBill().then(() => items.forEach((li, k) => paintBill(li.querySelector('.bill'), losses[k]))).catch(() => {});
     }
 
     function renderIntro(cash) {
