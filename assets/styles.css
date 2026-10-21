@@ -30,8 +30,8 @@
     --cast: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(60, 52, 40, 0.06), 0 12px 32px -12px rgba(60, 52, 40, 0.18);
     --shadow: 0 12px 40px rgba(60, 52, 40, 0.16);
     --grain-opacity: 0.35;
-    --font-display: Geist, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --font-body: Geist, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: Geist, "Noto Sans Georgian", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-body: Geist, "Noto Sans Georgian", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -131,6 +131,33 @@ a { color: inherit; }
 /* The logo keeps burning: flames are drawn on a canvas that extends above the bill. */
 .brand-fire { position: relative; display: block; }
 #logoFire { position: absolute; left: -10px; top: -30px; width: calc(100% + 20px); height: calc(100% + 34px); pointer-events: none; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+/* Language menu */
+.lang { position: relative; }
+.lang-btn {
+    display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--ink-2); cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.lang-btn:hover, .lang-btn[aria-expanded="true"] { color: var(--ink); background: var(--surface); }
+.lang-chevron { transition: transform 0.2s; }
+.lang-btn[aria-expanded="true"] .lang-chevron { transform: rotate(180deg); }
+.lang-menu {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; min-width: 168px; padding: 6px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow);
+    display: grid; gap: 2px; transform-origin: top right; animation: menu-in 0.16s ease;
+}
+@keyframes menu-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+@media (prefers-reduced-motion: reduce) { .lang-menu { animation: none; } }
+.lang-menu button {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+    padding: 9px 12px; border: 0; border-radius: 10px; background: none; color: var(--ink); cursor: pointer;
+    font-size: 14px; font-weight: 500; text-align: left;
+}
+.lang-menu button:hover, .lang-menu button:focus-visible { background: var(--surface-2); outline: none; }
+.lang-menu button svg { color: var(--accent); visibility: hidden; }
+.lang-menu button[aria-checked="true"] svg { visibility: visible; }
+
 .icon-btn {
     display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 999px;
     border: 1px solid var(--border); background: none; cursor: pointer; color: var(--ink-2);
@@ -283,13 +310,20 @@ h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -0.035
 .asset-nominal { font-size: 12px; color: var(--muted); }
 .up { color: var(--good); }
 .down { color: var(--critical); }
+/* Phones: name on its own line, then the values, then the line, so long names never collide. */
 @media (max-width: 720px) {
     .list-head { display: none; }
-    .asset { grid-template-columns: 60px minmax(0, 1fr) auto; gap: 8px 14px; padding: 14px 0; }
-    .asset-photo { width: 60px; height: 60px; border-radius: 13px; grid-row: span 2; }
-    .asset-spark { grid-column: 2 / 4; height: 36px; margin-right: 6px; }
-    .asset-value { grid-column: 3; grid-row: 1; }
+    .asset {
+        grid-template-columns: 60px minmax(0, 1fr); gap: 6px 14px; padding: 16px 0;
+        grid-template-areas: "photo name" "photo value" "photo spark";
+    }
+    .asset-photo { grid-area: photo; width: 60px; height: 60px; border-radius: 13px; align-self: start; }
+    .asset-name { grid-area: name; }
+    .asset-title { overflow-wrap: anywhere; }
+    .asset-value { grid-area: value; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; justify-items: start; text-align: left; }
+    .asset-spark { grid-area: spark; height: 36px; margin-right: 6px; }
     .asset-note { display: none; }
+}
 }
 
 /* Chart */
@@ -403,3 +437,8 @@ html.modal-open { overflow: hidden; }
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 500;
     background: var(--ink); color: var(--page); padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow);
 }
+
+/* Georgian letters are wider and taller than Latin ones: less negative tracking, more line height. */
+:lang(ka) .hero h1 { letter-spacing: -0.02em; line-height: 1.12; font-size: clamp(38px, 6vw, 72px); }
+:lang(ka) h2, :lang(ka) .m-title { letter-spacing: -0.01em; line-height: 1.25; }
+:lang(ka) .asset-title, :lang(ka) .period-value, :lang(ka) .asset-real { letter-spacing: 0; }

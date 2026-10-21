@@ -5,68 +5,44 @@
     const DEFAULTS = { from: 2005, to: 2025, amount: 10000 };
 
     // Each asset keeps its color everywhere (color follows the asset, not its rank).
+    // Names, notes and explanations are in assets/i18n.js.
     const ASSETS = [
-        { key: 'sp500', name: 'S&P 500', note: '500 large US companies, dividends reinvested', color: '--series-1', img: 'sp500' },
-        { key: 'gold', name: 'Gold', note: 'Gold price. Fixed by law until 1971', color: '--series-4', img: 'gold' },
-        { key: 'baa', name: 'Corporate bonds', note: 'Bonds of US companies (Baa rated)', color: '--series-6', img: 'bonds' },
-        { key: 'tbond', name: '10-year Treasury', note: 'US government bonds', color: '--series-2', img: 'treasury' },
-        { key: 'realEstate', name: 'US homes', note: 'Home prices only, no rent or costs', color: '--series-5', img: 'homes' },
-        { key: 'tbill', name: 'Savings', note: '3-month Treasury bills, like a savings account', color: '--series-3', img: 'savings' },
-        { key: 'cash', name: 'Cash', note: 'Dollar bills that earn nothing', color: '--neutral-series', img: 'cash' },
+        { key: 'sp500', color: '--series-1', img: 'sp500' },
+        { key: 'gold', color: '--series-4', img: 'gold' },
+        { key: 'baa', color: '--series-6', img: 'bonds' },
+        { key: 'tbond', color: '--series-2', img: 'treasury' },
+        { key: 'realEstate', color: '--series-5', img: 'homes' },
+        { key: 'tbill', color: '--series-3', img: 'savings' },
+        { key: 'cash', color: '--neutral-series', img: 'cash' },
     ];
 
-    const INFO = {
-        sp500: {
-            lede: 'A share of the 500 largest US companies, in one fund.',
-            what: 'The S&P 500 follows about 500 large US companies, such as Apple, Microsoft and Nvidia. Bigger companies count for more. The returns here include dividends, put back in.',
-            own: 'Most people buy a low-cost S&P 500 index fund or ETF through a broker or a retirement account. Large funds charge less than 0.1% a year.',
-            inflation: 'Companies can raise their prices and grow their profits when prices rise. That is why stocks have beaten inflation over long periods, but not in every decade.',
-            risk: 'Big, fast falls. The index lost more than a third of its value in 1931 and again in 2008, and buying power can take many years to come back.',
-        },
-        gold: {
-            lede: 'A metal that people have used to store value for thousands of years.',
-            what: 'The price of gold in dollars. Gold pays no interest and no dividends, so its return is only the change in its price.',
-            own: 'Bars and coins, or a gold ETF that holds metal in a vault. Bars and coins cost extra to buy, store and insure.',
-            inflation: 'Gold is often called a hedge against inflation. Over very long periods it kept up, but with long gaps: after its 1980 high, its buying power fell by more than three quarters and only came back in 2011.',
-            risk: 'Large price swings, with no income to soften them.',
-            note: 'Until 1971 the US government fixed the price of gold, so the early years change very little.',
-        },
-        baa: {
-            lede: 'Loans to US companies that pay you interest.',
-            what: 'A bond is a loan. The company pays interest every year and pays the loan back at the end. Baa is the lowest “investment grade” rating: solid companies, but not the safest.',
-            own: 'Usually through a corporate bond fund or ETF, which holds hundreds of bonds at once.',
-            inflation: 'Company bonds pay more interest than government bonds, to make up for the extra risk. That extra has kept them ahead of inflation over the long run.',
-            risk: 'A company can fail to pay. Bond prices also fall when interest rates rise, as they did in 2022.',
-        },
-        tbond: {
-            lede: 'A 10-year loan to the US government.',
-            what: 'The US Treasury borrows money for 10 years at a fixed interest rate. The return here includes the interest and the change in the bond’s price.',
-            own: 'Through a broker, TreasuryDirect, or a Treasury bond fund.',
-            inflation: 'The interest is fixed, so surprise inflation hurts. In the 1970s and in 2022, Treasury bonds lost a lot of buying power. TIPS are Treasury bonds that adjust for inflation.',
-            risk: 'Almost no risk that the US does not pay. But prices fall when interest rates rise, and fixed payments buy less when inflation is high.',
-        },
-        realEstate: {
-            lede: 'The price of a typical US home.',
-            what: 'A national index of US home prices. It shows only the change in price: no rent, repairs, property tax or mortgage.',
-            own: 'By buying a home. Real estate funds (REITs) own buildings too, but they behave more like stocks.',
-            inflation: 'Home prices have stayed a little ahead of inflation over the long run. Owners also get a place to live, which this number does not count.',
-            risk: 'Prices can fall, as they did from 2007 to 2011. Homes are slow and costly to buy and sell.',
-        },
-        tbill: {
-            lede: 'Very short loans to the US government. Close to a savings account.',
-            what: '3-month US Treasury bills. Their interest rate is close to what a high-yield savings account or a money market fund pays.',
-            own: 'A money market fund, a T-bill ETF, TreasuryDirect, or a high-yield savings account.',
-            inflation: 'The rate follows the Federal Reserve’s rate. When it is below inflation, as in most years from 2009 to 2022, savings lose buying power.',
-            risk: 'The value almost never falls, but buying power can shrink slowly for years.',
-        },
-        cash: {
-            lede: 'Dollar bills that earn nothing.',
-            what: 'Money in a drawer, or in an account that pays no interest. The number of dollars never changes.',
-            own: 'Everyone has some. It is useful for daily spending and emergencies.',
-            inflation: 'Cash loses exactly the inflation rate. Prices rise, so each dollar buys a little less every year.',
-            risk: 'No risk of a market crash, but a sure, slow loss of buying power.',
-        },
-    };
+    // ---------- Language ----------
+    const LANGS = Object.keys(window.I18N);
+    let lang = 'en';
+    const T = () => window.I18N[lang];
+
+    function pickLanguage() {
+        const fromUrl = new URLSearchParams(location.search).get('lang');
+        if (LANGS.includes(fromUrl)) return fromUrl;
+        try {
+            const saved = localStorage.getItem('lang');
+            if (LANGS.includes(saved)) return saved;
+        } catch (e) {}
+        return (navigator.language || '').toLowerCase().startsWith('ka') ? 'ka' : 'en';
+    }
+
+    // Puts the current language into the page's fixed text (data-i18n attributes) and metadata.
+    function applyStaticText() {
+        const t = T();
+        document.documentElement.lang = lang;
+        document.title = t['meta.title'];
+        $('meta[name="description"]')?.setAttribute('content', t['meta.description']);
+        for (const node of $$('[data-i18n]')) node.textContent = t[node.dataset.i18n];
+        for (const node of $$('[data-i18n-html]')) node.innerHTML = t[node.dataset.i18nHtml];
+        for (const node of $$('[data-i18n-aria]')) node.setAttribute('aria-label', t[node.dataset.i18nAria]);
+        $('#langCode').textContent = t.code;
+        for (const item of $$('#langMenu [data-lang]')) item.setAttribute('aria-checked', String(item.dataset.lang === lang));
+    }
 
     // ---------- Helpers ----------
     const $ = (sel, root = document) => root.querySelector(sel);
@@ -76,18 +52,28 @@
     const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
     const MINUS = '−';
 
-    const money = v => (v < 0 ? MINUS : '') + '$' + Math.round(Math.abs(v)).toLocaleString('en-US');
+    // Formats with the language's separators. Some browsers lack Georgian number data, so the
+    // separators come from assets/i18n.js instead of Intl.
+    const num = (v, digits = 0) => {
+        const t = T();
+        return v.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })
+            .replace(/[,.]/g, ch => (ch === ',' ? t.group : t.decimal));
+    };
+    const money = v => (v < 0 ? MINUS : '') + '$' + num(Math.round(Math.abs(v)));
+    const cents = v => '$' + num(v, 2);
     const moneyShort = v => {
-        const a = Math.abs(v);
-        if (a >= 1e9) return '$' + +(v / 1e9).toFixed(1) + 'B';
-        if (a >= 1e6) return '$' + +(v / 1e6).toFixed(1) + 'M';
-        if (a >= 1e3) return '$' + +(v / 1e3).toFixed(a >= 1e5 ? 0 : 1) + 'K';
-        return '$' + Math.round(v);
+        const a = Math.abs(v), t = T();
+        const short = (x, d) => num(+x.toFixed(d), x % 1 && d ? d : 0);
+        if (a >= 1e9) return '$' + short(v / 1e9, 1) + t.billion;
+        if (a >= 1e6) return '$' + short(v / 1e6, 1) + t.million;
+        if (a >= 1e3) return '$' + short(v / 1e3, a >= 1e5 ? 0 : 1) + t.thousand;
+        return '$' + num(Math.round(v));
     };
     const pct = (v, digits = 1, signed = true) => {
-        const abs = Math.abs(v * 100).toFixed(digits);
-        if (abs === (0).toFixed(digits)) return abs + '%';
-        return (v < 0 ? MINUS : signed ? '+' : '') + abs + '%';
+        const abs = Math.abs(v * 100);
+        const text = num(abs, digits);
+        if (abs.toFixed(digits) === (0).toFixed(digits)) return text + '%';
+        return (v < 0 ? MINUS : signed ? '+' : '') + text + '%';
     };
 
     const el = (tag, attrs = {}, children = []) => {
@@ -140,6 +126,7 @@
     function writeUrl() {
         const p = new URLSearchParams();
         for (const k of Object.keys(DEFAULTS)) if (state[k] !== DEFAULTS[k]) p.set(k, state[k]);
+        if (lang !== 'en') p.set('lang', lang);
         const q = p.toString();
         history.replaceState(null, '', (q ? `?${q}` : location.pathname) + location.hash);
     }
@@ -378,24 +365,20 @@
         years.forEach((year, k) => {
             if (k > 0) for (; y <= year; y++) cpi *= 1 + D.inflation[idx(y)];
             losses.push(Math.max(0, 1 - 1 / cpi));
-            items[k].querySelector('strong').textContent = '$' + (1 / cpi).toFixed(2);
+            items[k].querySelector('strong').textContent = cents(1 / cpi);
             items[k].querySelector('.step-year').textContent = String(year);
         });
-        $('#dollarSteps').setAttribute('aria-label', `What one dollar from ${from} buys over time`);
-        $('#seqCaption').textContent = from === to
-            ? `One dollar at the start of ${from}, and what it buys at the end of the year. The burned part is the buying power lost.`
-            : `One dollar at the start of ${from}, and what it buys at the end of each year shown. The burned part is the buying power lost.`;
+        $('#dollarSteps').setAttribute('aria-label', T().stepsAria(from));
+        $('#seqCaption').textContent = T().stepsCaption(from, from === to);
         loadBill().then(() => items.forEach((li, k) => paintBill(li.querySelector('.bill'), losses[k]))).catch(() => {});
     }
 
     function renderIntro(cash) {
         const { from, to } = state;
-        const span = from === to ? `in ${from}` : `from ${from} to ${to}`;
-        if (cash.cpi >= 1) {
-            $('#introText').textContent = `Prices rose ${pct(cash.cpi - 1, 0, false)} ${span}. A dollar kept as cash lost ${pct(cash.lost, 0, false)} of its buying power. Here is what kept up.`;
-        } else {
-            $('#introText').textContent = `Prices fell ${pct(1 - cash.cpi, 0, false)} ${span}, so even cash gained buying power. Here is how each asset did.`;
-        }
+        const t = T(), span = t.span(from, to);
+        $('#introText').textContent = cash.cpi >= 1
+            ? t.introRose(pct(cash.cpi - 1, 0, false), span, pct(cash.lost, 0, false))
+            : t.introFell(pct(1 - cash.cpi, 0, false), span);
         renderSteps();
     }
 
@@ -449,16 +432,17 @@
 
     function renderRows() {
         const { from, to, amount } = state;
-        $('#resultsTitle').textContent = `What ${money(amount)} from ${from} buys at the end of ${to}`;
-        $('#resultsSub').textContent = `In ${from} dollars, so you can compare it with what you put in. Before fees and taxes.`;
-        $('#sparkHead').textContent = from === to ? `Buying power in ${from}` : `Buying power, ${from} → ${to}`;
+        const t = T();
+        $('#resultsTitle').textContent = t.resultsTitle(money(amount), from, to);
+        $('#resultsSub').textContent = t.resultsSub(from);
+        $('#sparkHead').textContent = t.sparkHead(from, to);
 
         const y = sparkScale(amount);
         const sorted = [...results].sort((a, b) => b.real - a.real);
         $('#assetList').replaceChildren(...sorted.map(r => {
             const color = cssVar(r.color);
             const kept = r.real >= amount;
-            const open = el('button', { type: 'button', class: 'asset-open', 'aria-label': `About ${r.name}` });
+            const open = el('button', { type: 'button', class: 'asset-open', 'aria-label': t.about(r.name) });
             open.addEventListener('click', () => openAsset(r.key));
             const row = el('li', { class: 'asset', 'data-key': r.key }, [
                 open,
@@ -470,13 +454,12 @@
                 spark(r, y, amount, color),
                 el('div', { class: 'asset-value' }, [
                     el('span', { class: 'asset-real', text: money(r.real) }),
-                    el('span', { class: `asset-rate ${kept ? 'up' : 'down'}`, text: `${pct(r.perYear)} a year` }),
-                    el('span', { class: 'asset-nominal', text: `${money(r.nominal)} in dollars` }),
+                    el('span', { class: `asset-rate ${kept ? 'up' : 'down'}`, text: t.perYear(pct(r.perYear)) }),
+                    el('span', { class: 'asset-nominal', text: t.nominal(money(r.nominal)) }),
                 ]),
                 el('span', { class: 'asset-chevron', 'aria-hidden': 'true', text: '›' }),
             ]);
-            row.setAttribute('aria-label',
-                `${r.name}: buys what ${money(r.real)} bought in ${from}. ${pct(r.perYear)} a year after inflation. ${money(r.nominal)} in dollars.`);
+            row.setAttribute('aria-label', t.rowAria(r.name, money(r.real), from, pct(r.perYear), money(r.nominal)));
             return row;
         }));
     }
@@ -532,7 +515,7 @@
     function openAsset(key) {
         const r = results.find(x => x.key === key);
         if (!r) return;
-        const info = INFO[key];
+        const t = T(), info = t.info[key];
         const { from, to, amount } = state;
         const color = cssVar(r.color);
         const longRun = calc(key, { from: D.firstYear, to: D.lastYear, amount: 1 });
@@ -545,23 +528,23 @@
         const img = $('#mImage');
         img.onload = () => matchBackdrop(img);
         img.src = `assets/img/large/${r.img}.jpg`;
-        img.alt = `A white plaster sculpture for ${r.name}, partly eroded into blue crystal.`;
+        img.alt = t.modalAlt(r.name);
         $('#mTitle').textContent = r.name;
         $('#mLede').textContent = info.lede;
         $('#mSwatch').style.background = color;
 
         $('#mStats').replaceChildren(
-            stat(from === to ? `In ${from}` : `${from} to ${to}`, money(r.real), `${pct(r.perYear)} a year after inflation`, r.real >= amount ? 'up' : 'down'),
-            stat(`Since ${D.firstYear}`, `${pct(longRun.perYear)}`, 'a year after inflation, on average', longRun.perYear >= 0 ? 'up' : 'down'),
-            stat('Best and worst year', `${pct(best.v, 0)} / ${pct(worst.v, 0)}`, `${best.y} and ${worst.y}, after inflation`),
-            stat('Longest wait', `${wait.years} years`, wait.to ? `to get back buying power, ${wait.from} to ${wait.to}` : `below its ${wait.from} buying power, and counting`),
+            stat(t.statPeriod(from, to), money(r.real), t.statPerYear(pct(r.perYear)), r.real >= amount ? 'up' : 'down'),
+            stat(t.statSince(D.firstYear), pct(longRun.perYear), t.statSinceDetail, longRun.perYear >= 0 ? 'up' : 'down'),
+            stat(t.statBestWorst, `${pct(best.v, 0)} / ${pct(worst.v, 0)}`, t.statBestWorstDetail(best.y, worst.y)),
+            stat(t.statWait, t.years(wait.years), wait.to ? t.statWaitBack(wait.from, wait.to) : t.statWaitOngoing(wait.from)),
         );
 
         const y = sparkScale(amount, [r]);
         $('#mChart').replaceChildren(spark(r, y, amount, color));
         $('#mChartFrom').textContent = String(from);
         $('#mChartTo').textContent = String(to);
-        $('#mChartCaption').textContent = `Buying power of ${money(amount)} in ${from} dollars. Dashed line: what you put in.`;
+        $('#mChartCaption').textContent = t.modalChartCaption(money(amount), from);
 
         $('#mWhat').textContent = info.what;
         $('#mOwn').textContent = info.own;
@@ -649,16 +632,24 @@
         },
     };
 
+    // Room on the right for the end-of-line names: the longest name in the current language.
+    function labelRoom() {
+        const ctx = document.createElement('canvas').getContext('2d');
+        ctx.font = `500 12px ${Chart.defaults.font.family}`;
+        const widest = Math.max(...results.map(r => ctx.measureText(r.name).width));
+        return Math.min(Math.ceil(widest) + 26, window.innerWidth < 600 ? 150 : 240);
+    }
+
     function renderChart() {
         if (!window.Chart) return;
         const { from, to, amount } = state;
         const n = to - from + 1;
         const log = n >= 30;
-        Chart.defaults.font.family = 'Geist, system-ui, -apple-system, "Segoe UI", sans-serif';
+        Chart.defaults.font.family = 'Geist, "Noto Sans Georgian", system-ui, -apple-system, "Segoe UI", sans-serif';
         Chart.defaults.font.size = 12;
         Chart.defaults.color = cssVar('--muted');
 
-        $('#chartSub').textContent = `In ${from} dollars. The dashed line is ${money(amount)}: above it, your money buys more than at the start.`;
+        $('#chartSub').textContent = T().chartSub(from, money(amount));
 
         chart?.destroy();
         chart = new Chart($('#chart'), {
@@ -666,7 +657,7 @@
             data: {
                 datasets: [
                     {
-                        label: `Break-even (${money(amount)})`,
+                        label: T().breakEven(money(amount)),
                         data: [{ x: from, y: amount }, { x: to + 1, y: amount }],
                         borderColor: cssVar('--axis'), borderDash: [4, 4], borderWidth: 1.25, pointRadius: 0, pointHoverRadius: 0,
                     },
@@ -689,7 +680,7 @@
                 maintainAspectRatio: false,
                 animation: motion() ? { duration: 350 } : false,
                 interaction: { mode: 'index', intersect: false },
-                layout: { padding: { right: window.innerWidth < 600 ? 92 : 128 } },
+                layout: { padding: { right: labelRoom() } },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -703,7 +694,7 @@
                         filter: item => item.datasetIndex > 0,
                         itemSort: (a, b) => b.parsed.y - a.parsed.y,
                         callbacks: {
-                            title: items => (items[0].parsed.x === from ? `Start of ${from}` : `End of ${items[0].parsed.x - 1}`),
+                            title: items => (items[0].parsed.x === from ? T().startOf(from) : T().endOf(items[0].parsed.x - 1)),
                             label: item => ` ${item.dataset.label}: ${money(item.parsed.y)}`,
                         },
                     },
@@ -741,8 +732,8 @@
         // When the handles meet in the right half, put the start handle on top so it can move left.
         $('#fromYear').style.zIndex = from === to && from > (D.firstYear + D.lastYear) / 2 ? 2 : '';
         const n = to - from + 1;
-        $('#periodText').textContent = from === to ? String(from) : `${from} to ${to}`;
-        $('#periodLen').textContent = `${n} year${n > 1 ? 's' : ''}`;
+        $('#periodText').textContent = T().periodText(from, to);
+        $('#periodLen').textContent = T().periodLen(n);
     }
 
     // Keeps start <= end while a handle moves: the moving handle pushes the other one.
@@ -755,8 +746,9 @@
         return { from, to };
     }
 
-    const parseAmount = text => Number(String(text).replace(/[^0-9.]/g, '')) || 0;
-    const formatAmount = v => Math.round(v).toLocaleString('en-US');
+    // Digits only: group separators differ by language and the amount is whole dollars.
+    const parseAmount = text => Number(String(text).replace(/[^0-9]/g, '')) || 0;
+    const formatAmount = v => num(Math.round(v));
 
     function syncControls() {
         $('#fromYear').value = state.from;
@@ -795,8 +787,8 @@
             });
         }
         $('#copyLink').addEventListener('click', async () => {
-            try { await navigator.clipboard.writeText(location.href); toast('Link copied'); }
-            catch (e) { window.prompt('Copy this link:', location.href); }
+            try { await navigator.clipboard.writeText(location.href); toast(T()['toast.copied']); }
+            catch (e) { window.prompt(T()['prompt.copy'], location.href); }
         });
     }
 
@@ -814,10 +806,41 @@
 
     // ---------- Render ----------
     function render() {
-        results = ASSETS.map(a => ({ ...a, ...calc(a.key, state) }));
+        $('#dataNote').textContent = T().dataNote(D.firstYear, D.lastYear);
+        results = ASSETS.map(a => ({ ...a, ...T().assets[a.key], ...calc(a.key, state) }));
         renderIntro(results.find(r => r.key === 'cash'));
         renderRows();
         renderChart();
+    }
+
+    function setLanguage(next) {
+        if (!LANGS.includes(next) || next === lang) return;
+        lang = next;
+        try { localStorage.setItem('lang', lang); } catch (e) {}
+        applyStaticText();
+        update();
+        if (modalKey) openAsset(modalKey);
+    }
+
+    // Language dropdown: a small menu under the button; closes on outside click and Escape.
+    function bindLanguageMenu() {
+        const btn = $('#langBtn'), menu = $('#langMenu');
+        const open = show => {
+            menu.hidden = !show;
+            btn.setAttribute('aria-expanded', String(show));
+            if (show) $(`#langMenu [data-lang="${lang}"]`)?.focus();
+        };
+        btn.addEventListener('click', () => open(menu.hidden));
+        for (const item of $$('#langMenu [data-lang]')) {
+            item.addEventListener('click', () => { open(false); setLanguage(item.dataset.lang); btn.focus(); });
+        }
+        document.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('#lang')) open(false); });
+        menu.addEventListener('keydown', e => {
+            const items = $$('#langMenu [data-lang]'), at = items.indexOf(document.activeElement);
+            if (e.key === 'Escape') { open(false); btn.focus(); }
+            if (e.key === 'ArrowDown') { e.preventDefault(); items[(at + 1) % items.length].focus(); }
+            if (e.key === 'ArrowUp') { e.preventDefault(); items[(at - 1 + items.length) % items.length].focus(); }
+        });
     }
 
     function update() {
@@ -827,12 +850,14 @@
     }
 
     function init() {
+        lang = pickLanguage();
+        applyStaticText();
+        bindLanguageMenu();
         bindTheme();
         startLogoFire();
         // data/returns.js sets the data synchronously, so the page renders in one pass.
         D = window.RETURNS_DATA;
-        if (!D) { toast('Could not load the data. Reload the page.'); return; }
-        $('#dataNote').textContent = `Data ${D.firstYear} to ${D.lastYear}`;
+        if (!D) { toast(T()['toast.noData']); return; }
 
         setupYearRange();
         readUrl();

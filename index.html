@@ -26,7 +26,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=optional" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@400;500;600;700&display=optional" rel="stylesheet">
     <link rel="stylesheet" href="assets/styles.css">
 
     <script>
@@ -64,10 +64,23 @@
                 <span class="brand-fire"><img class="brand-mark" src="assets/logo/logo-64.png" width="56" height="30" alt=""><canvas id="logoFire" aria-hidden="true"></canvas></span>
                 <span>realreturns<span class="brand-tld">.xyz</span></span>
             </a>
-            <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch color theme">
-                <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-                <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-            </button>
+            <div class="header-actions">
+                <div class="lang" id="lang">
+                    <button type="button" class="lang-btn" id="langBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="langMenu" aria-label="Language" data-i18n-aria="lang.aria">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>
+                        <span id="langCode">EN</span>
+                        <svg class="lang-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    <div class="lang-menu" id="langMenu" role="menu" hidden>
+                        <button type="button" role="menuitemradio" aria-checked="true" data-lang="en" lang="en"><span>English</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button>
+                        <button type="button" role="menuitemradio" aria-checked="false" data-lang="ka" lang="ka"><span>ქართული</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button>
+                    </div>
+                </div>
+                <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch color theme" data-i18n-aria="theme.aria">
+                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -75,7 +88,7 @@
         <!-- Intro: the question, and a dollar eroding over the chosen period. -->
         <section class="hero" aria-labelledby="heroTitle">
             <div class="hero-text">
-                <h1 id="heroTitle">What your money <em>really</em> buys.</h1>
+                <h1 id="heroTitle" data-i18n-html="hero.title">What your money <em>really</em> buys.</h1>
                 <p class="intro" id="introText">Prices rose 70% from 2005 to 2025. A dollar kept as cash lost 41% of its buying power. Here is what kept up.</p>
             </div>
             <figure class="sequence">
@@ -92,31 +105,31 @@
         </section>
 
         <!-- The two inputs: how much and when. -->
-        <section class="controls" aria-label="Your amount and period">
+        <section class="controls" aria-label="Your amount and period" data-i18n-aria="controls.aria">
             <div class="controls-row">
                 <label class="amount">
-                    <span class="label">Amount</span>
-                    <span class="amount-input"><span aria-hidden="true">$</span><input id="amount" type="text" inputmode="numeric" autocomplete="off" value="10,000" aria-label="Amount in dollars"></span>
+                    <span class="label" data-i18n="amount">Amount</span>
+                    <span class="amount-input"><span aria-hidden="true">$</span><input id="amount" type="text" inputmode="numeric" autocomplete="off" value="10,000" aria-label="Amount in dollars" data-i18n-aria="amount.aria"></span>
                 </label>
                 <div class="period">
                     <div class="period-head">
-                        <span class="label">Period</span>
+                        <span class="label" data-i18n="period">Period</span>
                         <span class="period-value"><span id="periodText">2005 to 2025</span> <span class="period-len" id="periodLen">21 years</span></span>
                     </div>
                     <div class="year-range">
                         <div class="year-track"><div class="year-fill" id="yearFill" style="left:79.38%;right:0%"></div></div>
-                        <input class="year-input" type="range" id="fromYear" aria-label="Start year (start of year)" min="1928" max="2025" step="1" value="2005">
-                        <input class="year-input" type="range" id="toYear" aria-label="End year (end of year)" min="1928" max="2025" step="1" value="2025">
+                        <input class="year-input" type="range" id="fromYear" aria-label="Start year (start of year)" data-i18n-aria="from.aria" min="1928" max="2025" step="1" value="2005">
+                        <input class="year-input" type="range" id="toYear" aria-label="End year (end of year)" data-i18n-aria="to.aria" min="1928" max="2025" step="1" value="2025">
                     </div>
                     <div class="year-ticks" aria-hidden="true"><span style="left:2.06%">1930</span><span style="left:12.37%">1940</span><span style="left:22.68%">1950</span><span style="left:32.99%">1960</span><span style="left:43.30%">1970</span><span style="left:53.61%">1980</span><span style="left:63.92%">1990</span><span style="left:74.23%">2000</span><span style="left:84.54%">2010</span><span style="left:94.85%">2020</span></div>
                 </div>
             </div>
-            <div class="chips" role="group" aria-label="Quick periods">
-                <button type="button" class="chip" data-from="2016" data-to="2025">Last 10 years</button>
-                <button type="button" class="chip" data-from="2005" data-to="2025" aria-pressed="true">Last 21 years</button>
-                <button type="button" class="chip" data-from="2000" data-to="2025">Since 2000</button>
-                <button type="button" class="chip" data-from="1970" data-to="2025">Since 1970</button>
-                <button type="button" class="chip" data-from="1928" data-to="2025">Since 1928</button>
+            <div class="chips" role="group" aria-label="Quick periods" data-i18n-aria="chips.aria">
+                <button type="button" class="chip" data-i18n="chip.last10" data-from="2016" data-to="2025">Last 10 years</button>
+                <button type="button" class="chip" data-i18n="chip.last21" data-from="2005" data-to="2025" aria-pressed="true">Last 21 years</button>
+                <button type="button" class="chip" data-i18n="chip.since2000" data-from="2000" data-to="2025">Since 2000</button>
+                <button type="button" class="chip" data-i18n="chip.since1970" data-from="1970" data-to="2025">Since 1970</button>
+                <button type="button" class="chip" data-i18n="chip.since1928" data-from="1928" data-to="2025">Since 1928</button>
             </div>
         </section>
 
@@ -129,45 +142,45 @@
                 </div>
                 <button type="button" class="btn" id="copyLink">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
-                    Copy link
+                    <span data-i18n="copyLink">Copy link</span>
                 </button>
             </div>
             <div class="list-head" aria-hidden="true">
                 <span></span>
                 <span></span>
                 <span id="sparkHead">Buying power, 2005 → 2025</span>
-                <span class="list-head-value">Buys today</span>
+                <span class="list-head-value" data-i18n="buysToday">Buys today</span>
             </div>
             <ol class="asset-list" id="assetList"><li class="asset" data-key="gold" aria-label="Gold: buys what $58,504 bought in 2005. +8.8% a year after inflation. $99,624 in dollars."><button type="button" class="asset-open" aria-label="About Gold"></button><img class="asset-photo" src="assets/img/gold.jpg" alt="" width="160" height="160" decoding="async"><div class="asset-name"><span class="asset-title"><span class="swatch" style="background: rgb(221, 176, 96);"></span>Gold</span><span class="asset-note">Gold price. Fixed by law until 1971</span></div><div class="asset-spark" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none" class="spark"><defs><clipPath id="clip-up-8"><rect x="0" y="-10" width="100" height="39.66"></rect></clipPath><clipPath id="clip-down-8"><rect x="0" y="29.66" width="100" height="20.34"></rect></clipPath></defs><path d="M0.00,29.66 L4.76,27.63 L9.52,24.75 L14.29,21.04 L19.05,20.39 L23.81,17.32 L28.57,13.53 L33.33,12.21 L38.10,11.62 L42.86,16.91 L47.62,17.01 L52.38,19.14 L57.14,18.24 L61.90,16.70 L66.67,17.15 L71.43,14.77 L76.19,11.59 L80.95,13.25 L85.71,14.15 L90.48,12.71 L95.24,9.54 L100.00,2.00 L100,29.66 L0,29.66 Z" fill="rgba(221, 176, 96, 0.24)" clip-path="url(#clip-up-8)"></path><path d="M0.00,29.66 L4.76,27.63 L9.52,24.75 L14.29,21.04 L19.05,20.39 L23.81,17.32 L28.57,13.53 L33.33,12.21 L38.10,11.62 L42.86,16.91 L47.62,17.01 L52.38,19.14 L57.14,18.24 L61.90,16.70 L66.67,17.15 L71.43,14.77 L76.19,11.59 L80.95,13.25 L85.71,14.15 L90.48,12.71 L95.24,9.54 L100.00,2.00 L100,29.66 L0,29.66 Z" fill="rgba(229, 154, 130, 0.16)" clip-path="url(#clip-down-8)"></path><line x1="0" x2="100" y1="29.66" y2="29.66" class="spark-base"></line><path d="M0.00,29.66 L4.76,27.63 L9.52,24.75 L14.29,21.04 L19.05,20.39 L23.81,17.32 L28.57,13.53 L33.33,12.21 L38.10,11.62 L42.86,16.91 L47.62,17.01 L52.38,19.14 L57.14,18.24 L61.90,16.70 L66.67,17.15 L71.43,14.77 L76.19,11.59 L80.95,13.25 L85.71,14.15 L90.48,12.71 L95.24,9.54 L100.00,2.00" fill="none" stroke="#ddb060" class="spark-line"></path></svg><span class="spark-dot" style="top: 5%; background: rgb(221, 176, 96);"></span></div><div class="asset-value"><span class="asset-real">$58,504</span><span class="asset-rate up">+8.8% a year</span><span class="asset-nominal">$99,624 in dollars</span></div><span class="asset-chevron" aria-hidden="true">›</span></li><li class="asset" data-key="sp500" aria-label="S&amp;P 500: buys what $48,762 bought in 2005. +7.8% a year after inflation. $83,034 in dollars."><button type="button" class="asset-open" aria-label="About S&amp;P 500"></button><img class="asset-photo" src="assets/img/sp500.jpg" alt="" width="160" height="160" decoding="async"><div class="asset-name"><span class="asset-title"><span class="swatch" style="background: rgb(122, 174, 214);"></span>S&amp;P 500</span><span class="asset-note">500 large US companies, dividends reinvested</span></div><div class="asset-spark" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none" class="spark"><defs><clipPath id="clip-up-9"><rect x="0" y="-10" width="100" height="39.66"></rect></clipPath><clipPath id="clip-down-9"><rect x="0" y="29.66" width="100" height="20.34"></rect></clipPath></defs><path d="M0.00,29.66 L4.76,29.45 L9.52,27.57 L14.29,27.36 L19.05,34.50 L23.81,31.31 L28.57,29.38 L33.33,29.51 L38.10,27.47 L42.86,23.34 L47.62,21.47 L52.38,21.37 L57.14,19.95 L61.90,17.21 L66.67,18.19 L71.43,14.29 L76.19,11.90 L80.95,9.04 L85.71,13.14 L90.48,10.03 L95.24,6.99 L100.00,4.85 L100,29.66 L0,29.66 Z" fill="rgba(122, 174, 214, 0.24)" clip-path="url(#clip-up-9)"></path><path d="M0.00,29.66 L4.76,29.45 L9.52,27.57 L14.29,27.36 L19.05,34.50 L23.81,31.31 L28.57,29.38 L33.33,29.51 L38.10,27.47 L42.86,23.34 L47.62,21.47 L52.38,21.37 L57.14,19.95 L61.90,17.21 L66.67,18.19 L71.43,14.29 L76.19,11.90 L80.95,9.04 L85.71,13.14 L90.48,10.03 L95.24,6.99 L100.00,4.85 L100,29.66 L0,29.66 Z" fill="rgba(229, 154, 130, 0.16)" clip-path="url(#clip-down-9)"></path><line x1="0" x2="100" y1="29.66" y2="29.66" class="spark-base"></line><path d="M0.00,29.66 L4.76,29.45 L9.52,27.57 L14.29,27.36 L19.05,34.50 L23.81,31.31 L28.57,29.38 L33.33,29.51 L38.10,27.47 L42.86,23.34 L47.62,21.47 L52.38,21.37 L57.14,19.95 L61.90,17.21 L66.67,18.19 L71.43,14.29 L76.19,11.90 L80.95,9.04 L85.71,13.14 L90.48,10.03 L95.24,6.99 L100.00,4.85" fill="none" stroke="#7aaed6" class="spark-line"></path></svg><span class="spark-dot" style="top: 12.1314%; background: rgb(122, 174, 214);"></span></div><div class="asset-value"><span class="asset-real">$48,762</span><span class="asset-rate up">+7.8% a year</span><span class="asset-nominal">$83,034 in dollars</span></div><span class="asset-chevron" aria-hidden="true">›</span></li><li class="asset" data-key="baa" aria-label="Corporate bonds: buys what $17,419 bought in 2005. +2.7% a year after inflation. $29,662 in dollars."><button type="button" class="asset-open" aria-label="About Corporate bonds"></button><img class="asset-photo" src="assets/img/bonds.jpg" alt="" width="160" height="160" decoding="async"><div class="asset-name"><span class="asset-title"><span class="swatch" style="background: rgb(143, 191, 150);"></span>Corporate bonds</span><span class="asset-note">Bonds of US companies (Baa rated)</span></div><div class="asset-spark" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none" class="spark"><defs><clipPath id="clip-up-10"><rect x="0" y="-10" width="100" height="39.66"></rect></clipPath><clipPath id="clip-down-10"><rect x="0" y="29.66" width="100" height="20.34"></rect></clipPath></defs><path d="M0.00,29.66 L4.76,29.41 L9.52,28.99 L14.29,28.87 L19.05,29.43 L23.81,27.01 L28.57,25.83 L33.33,24.48 L38.10,23.34 L42.86,23.75 L47.62,22.27 L52.38,22.62 L57.14,21.24 L61.90,20.19 L66.67,20.99 L71.43,19.12 L76.19,17.76 L80.95,18.67 L85.71,22.23 L90.48,21.44 L95.24,21.61 L100.00,20.97 L100,29.66 L0,29.66 Z" fill="rgba(143, 191, 150, 0.24)" clip-path="url(#clip-up-10)"></path><path d="M0.00,29.66 L4.76,29.41 L9.52,28.99 L14.29,28.87 L19.05,29.43 L23.81,27.01 L28.57,25.83 L33.33,24.48 L38.10,23.34 L42.86,23.75 L47.62,22.27 L52.38,22.62 L57.14,21.24 L61.90,20.19 L66.67,20.99 L71.43,19.12 L76.19,17.76 L80.95,18.67 L85.71,22.23 L90.48,21.44 L95.24,21.61 L100.00,20.97 L100,29.66 L0,29.66 Z" fill="rgba(229, 154, 130, 0.16)" clip-path="url(#clip-down-10)"></path><line x1="0" x2="100" y1="29.66" y2="29.66" class="spark-base"></line><path d="M0.00,29.66 L4.76,29.41 L9.52,28.99 L14.29,28.87 L19.05,29.43 L23.81,27.01 L28.57,25.83 L33.33,24.48 L38.10,23.34 L42.86,23.75 L47.62,22.27 L52.38,22.62 L57.14,21.24 L61.90,20.19 L66.67,20.99 L71.43,19.12 L76.19,17.76 L80.95,18.67 L85.71,22.23 L90.48,21.44 L95.24,21.61 L100.00,20.97" fill="none" stroke="#8fbf96" class="spark-line"></path></svg><span class="spark-dot" style="top: 52.4319%; background: rgb(143, 191, 150);"></span></div><div class="asset-value"><span class="asset-real">$17,419</span><span class="asset-rate up">+2.7% a year</span><span class="asset-nominal">$29,662 in dollars</span></div><span class="asset-chevron" aria-hidden="true">›</span></li><li class="asset" data-key="realEstate" aria-label="US homes: buys what $12,156 bought in 2005. +0.9% a year after inflation. $20,699 in dollars."><button type="button" class="asset-open" aria-label="About US homes"></button><img class="asset-photo" src="assets/img/homes.jpg" alt="" width="160" height="160" decoding="async"><div class="asset-name"><span class="asset-title"><span class="swatch" style="background: rgb(232, 160, 128);"></span>US homes</span><span class="asset-note">Home prices only, no rent or costs</span></div><div class="asset-spark" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none" class="spark"><defs><clipPath id="clip-up-11"><rect x="0" y="-10" width="100" height="39.66"></rect></clipPath><clipPath id="clip-down-11"><rect x="0" y="29.66" width="100" height="20.34"></rect></clipPath></defs><path d="M0.00,29.66 L4.76,28.21 L9.52,28.33 L14.29,29.83 L19.05,31.84 L23.81,32.88 L28.57,33.77 L33.33,34.85 L38.10,34.14 L42.86,32.78 L47.62,32.21 L52.38,31.53 L57.14,31.04 L61.90,30.42 L66.67,30.03 L71.43,29.81 L76.19,28.47 L80.95,26.83 L85.71,26.95 L90.48,26.60 L95.24,26.44 L100.00,26.61 L100,29.66 L0,29.66 Z" fill="rgba(232, 160, 128, 0.24)" clip-path="url(#clip-up-11)"></path><path d="M0.00,29.66 L4.76,28.21 L9.52,28.33 L14.29,29.83 L19.05,31.84 L23.81,32.88 L28.57,33.77 L33.33,34.85 L38.10,34.14 L42.86,32.78 L47.62,32.21 L52.38,31.53 L57.14,31.04 L61.90,30.42 L66.67,30.03 L71.43,29.81 L76.19,28.47 L80.95,26.83 L85.71,26.95 L90.48,26.60 L95.24,26.44 L100.00,26.61 L100,29.66 L0,29.66 Z" fill="rgba(229, 154, 130, 0.16)" clip-path="url(#clip-down-11)"></path><line x1="0" x2="100" y1="29.66" y2="29.66" class="spark-base"></line><path d="M0.00,29.66 L4.76,28.21 L9.52,28.33 L14.29,29.83 L19.05,31.84 L23.81,32.88 L28.57,33.77 L33.33,34.85 L38.10,34.14 L42.86,32.78 L47.62,32.21 L52.38,31.53 L57.14,31.04 L61.90,30.42 L66.67,30.03 L71.43,29.81 L76.19,28.47 L80.95,26.83 L85.71,26.95 L90.48,26.60 L95.24,26.44 L100.00,26.61" fill="none" stroke="#e8a080" class="spark-line"></path></svg><span class="spark-dot" style="top: 66.5173%; background: rgb(232, 160, 128);"></span></div><div class="asset-value"><span class="asset-real">$12,156</span><span class="asset-rate up">+0.9% a year</span><span class="asset-nominal">$20,699 in dollars</span></div><span class="asset-chevron" aria-hidden="true">›</span></li><li class="asset" data-key="tbond" aria-label="10-year Treasury: buys what $10,464 bought in 2005. +0.2% a year after inflation. $17,818 in dollars."><button type="button" class="asset-open" aria-label="About 10-year Treasury"></button><img class="asset-photo" src="assets/img/treasury.jpg" alt="" width="160" height="160" decoding="async"><div class="asset-name"><span class="asset-title"><span class="swatch" style="background: rgb(173, 159, 220);"></span>10-year Treasury</span><span class="asset-note">US government bonds</span></div><div class="asset-spark" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none" class="spark"><defs><clipPath id="clip-up-12"><rect x="0" y="-10" width="100" height="39.66"></rect></clipPath><clipPath id="clip-down-12"><rect x="0" y="29.66" width="100" height="20.34"></rect></clipPath></defs><path d="M0.00,29.66 L4.76,29.75 L9.52,29.84 L14.29,28.94 L19.05,26.09 L23.81,28.35 L28.57,27.31 L33.33,25.44 L38.10,25.25 L42.86,26.98 L47.62,25.50 L52.38,25.41 L57.14,25.63 L61.90,25.52 L66.67,25.82 L71.43,24.73 L76.19,23.26 L80.95,25.04 L85.71,29.09 L90.48,29.01 L95.24,29.72 L100.00,28.95 L100,29.66 L0,29.66 Z" fill="rgba(173, 159, 220, 0.24)" clip-path="url(#clip-up-12)"></path><path d="M0.00,29.66 L4.76,29.75 L9.52,29.84 L14.29,28.94 L19.05,26.09 L23.81,28.35 L28.57,27.31 L33.33,25.44 L38.10,25.25 L42.86,26.98 L47.62,25.50 L52.38,25.41 L57.14,25.63 L61.90,25.52 L66.67,25.82 L71.43,24.73 L76.19,23.26 L80.95,25.04 L85.71,29.09 L90.48,29.01 L95.24,29.72 L100.00,28.95 L100,29.66 L0,29.66 Z" fill="rgba(229, 154, 130, 0.16)" clip-path="url(#clip-down-12)"></path><line x1="0" x2="100" y1="29.66" y2="29.66" class="spark-base"></line><path d="M0.00,29.66 L4.76,29.75 L9.52,29.84 L14.29,28.94 L19.05,26.09 L23.81,28.35 L28.57,27.31 L33.33,25.44 L38.10,25.25 L42.86,26.98 L47.62,25.50 L52.38,25.41 L57.14,25.63 L61.90,25.52 L66.67,25.82 L71.43,24.73 L76.19,23.26 L80.95,25.04 L85.71,29.09 L90.48,29.01 L95.24,29.72 L100.00,28.95" fill="none" stroke="#ad9fdc" class="spark-line"></path></svg><span class="spark-dot" style="top: 72.3855%; background: rgb(173, 159, 220);"></span></div><div class="asset-value"><span class="asset-real">$10,464</span><span class="asset-rate up">+0.2% a year</span><span class="asset-nominal">$17,818 in dollars</span></div><span class="asset-chevron" aria-hidden="true">›</span></li><li class="asset" data-key="tbill" aria-label="Savings: buys what $8,446 bought in 2005. −0.8% a year after inflation. $14,382 in dollars."><button type="button" class="asset-open" aria-label="About Savings"></button><img class="asset-photo" src="assets/img/savings.jpg" alt="" width="160" height="160" decoding="async"><div class="asset-name"><span class="asset-title"><span class="swatch" style="background: rgb(230, 159, 188);"></span>Savings</span><span class="asset-note">3-month Treasury bills, like a savings account</span></div><div class="asset-spark" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none" class="spark"><defs><clipPath id="clip-up-13"><rect x="0" y="-10" width="100" height="39.66"></rect></clipPath><clipPath id="clip-down-13"><rect x="0" y="29.66" width="100" height="20.34"></rect></clipPath></defs><path d="M0.00,29.66 L4.76,29.69 L9.52,29.34 L14.29,29.28 L19.05,29.08 L23.81,29.48 L28.57,29.69 L33.33,30.14 L38.10,30.39 L42.86,30.62 L47.62,30.73 L52.38,30.84 L57.14,31.11 L61.90,31.29 L66.67,31.28 L71.43,31.31 L76.19,31.46 L80.95,32.52 L85.71,33.18 L90.48,32.89 L95.24,32.54 L100.00,32.31 L100,29.66 L0,29.66 Z" fill="rgba(230, 159, 188, 0.24)" clip-path="url(#clip-up-13)"></path><path d="M0.00,29.66 L4.76,29.69 L9.52,29.34 L14.29,29.28 L19.05,29.08 L23.81,29.48 L28.57,29.69 L33.33,30.14 L38.10,30.39 L42.86,30.62 L47.62,30.73 L52.38,30.84 L57.14,31.11 L61.90,31.29 L66.67,31.28 L71.43,31.31 L76.19,31.46 L80.95,32.52 L85.71,33.18 L90.48,32.89 L95.24,32.54 L100.00,32.31 L100,29.66 L0,29.66 Z" fill="rgba(229, 154, 130, 0.16)" clip-path="url(#clip-down-13)"></path><line x1="0" x2="100" y1="29.66" y2="29.66" class="spark-base"></line><path d="M0.00,29.66 L4.76,29.69 L9.52,29.34 L14.29,29.28 L19.05,29.08 L23.81,29.48 L28.57,29.69 L33.33,30.14 L38.10,30.39 L42.86,30.62 L47.62,30.73 L52.38,30.84 L57.14,31.11 L61.90,31.29 L66.67,31.28 L71.43,31.31 L76.19,31.46 L80.95,32.52 L85.71,33.18 L90.48,32.89 L95.24,32.54 L100.00,32.31" fill="none" stroke="#e69fbc" class="spark-line"></path></svg><span class="spark-dot" style="top: 80.7731%; background: rgb(230, 159, 188);"></span></div><div class="asset-value"><span class="asset-real">$8,446</span><span class="asset-rate down">−0.8% a year</span><span class="asset-nominal">$14,382 in dollars</span></div><span class="asset-chevron" aria-hidden="true">›</span></li><li class="asset" data-key="cash" aria-label="Cash: buys what $5,872 bought in 2005. −2.5% a year after inflation. $10,000 in dollars."><button type="button" class="asset-open" aria-label="About Cash"></button><img class="asset-photo" src="assets/img/cash.jpg" alt="" width="160" height="160" decoding="async"><div class="asset-name"><span class="asset-title"><span class="swatch" style="background: rgb(163, 157, 146);"></span>Cash</span><span class="asset-note">Dollar bills that earn nothing</span></div><div class="asset-spark" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none" class="spark"><defs><clipPath id="clip-up-14"><rect x="0" y="-10" width="100" height="39.66"></rect></clipPath><clipPath id="clip-down-14"><rect x="0" y="29.66" width="100" height="20.34"></rect></clipPath></defs><path d="M0.00,29.66 L4.76,30.19 L9.52,30.58 L14.29,31.21 L19.05,31.22 L23.81,31.64 L28.57,31.88 L33.33,32.33 L38.10,32.60 L42.86,32.84 L47.62,32.96 L52.38,33.07 L57.14,33.39 L61.90,33.72 L66.67,34.01 L71.43,34.37 L76.19,34.58 L80.95,35.64 L85.71,36.62 L90.48,37.14 L95.24,37.59 L100.00,38.00 L100,29.66 L0,29.66 Z" fill="rgba(163, 157, 146, 0.24)" clip-path="url(#clip-up-14)"></path><path d="M0.00,29.66 L4.76,30.19 L9.52,30.58 L14.29,31.21 L19.05,31.22 L23.81,31.64 L28.57,31.88 L33.33,32.33 L38.10,32.60 L42.86,32.84 L47.62,32.96 L52.38,33.07 L57.14,33.39 L61.90,33.72 L66.67,34.01 L71.43,34.37 L76.19,34.58 L80.95,35.64 L85.71,36.62 L90.48,37.14 L95.24,37.59 L100.00,38.00 L100,29.66 L0,29.66 Z" fill="rgba(229, 154, 130, 0.16)" clip-path="url(#clip-down-14)"></path><line x1="0" x2="100" y1="29.66" y2="29.66" class="spark-base"></line><path d="M0.00,29.66 L4.76,30.19 L9.52,30.58 L14.29,31.21 L19.05,31.22 L23.81,31.64 L28.57,31.88 L33.33,32.33 L38.10,32.60 L42.86,32.84 L47.62,32.96 L52.38,33.07 L57.14,33.39 L61.90,33.72 L66.67,34.01 L71.43,34.37 L76.19,34.58 L80.95,35.64 L85.71,36.62 L90.48,37.14 L95.24,37.59 L100.00,38.00" fill="none" stroke="#a39d92" class="spark-line"></path></svg><span class="spark-dot" style="top: 95%; background: rgb(163, 157, 146);"></span></div><div class="asset-value"><span class="asset-real">$5,872</span><span class="asset-rate down">−2.5% a year</span><span class="asset-nominal">$10,000 in dollars</span></div><span class="asset-chevron" aria-hidden="true">›</span></li></ol>
         </section>
 
         <!-- One chart: buying power over time. -->
         <section class="chart-section" aria-labelledby="chartTitle">
-            <h2 id="chartTitle">Buying power over time</h2>
+            <h2 id="chartTitle" data-i18n="chart.title">Buying power over time</h2>
             <p class="sub" id="chartSub">In 2005 dollars. The dashed line is $10,000: above it, your money buys more than at the start.</p>
-            <div class="chart-box"><canvas id="chart" role="img" aria-label="Line chart of the buying power of each asset over time. The same numbers are in the list above."></canvas></div>
+            <div class="chart-box"><canvas id="chart" role="img" aria-label="Line chart of the buying power of each asset over time. The same numbers are in the list above." data-i18n-aria="chart.aria"></canvas></div>
         </section>
 
         <!-- How it works -->
         <section class="about" aria-labelledby="aboutTitle">
-            <h2 id="aboutTitle">How it works</h2>
+            <h2 id="aboutTitle" data-i18n="about.title">How it works</h2>
             <div class="about-grid">
-                <p><strong>Buying power.</strong> We take the value of your money at the end and remove the price rise since the start. What is left is what it can buy, in start-year dollars.</p>
-                <p><strong>The art.</strong> Each asset is shown as a plaster cast that erodes into blue crystal, like a relic from the future: what time and inflation do to money.</p>
-                <p><strong>The data.</strong> Yearly total returns from Aswath Damodaran (NYU Stern). Inflation is US CPI, December to December. No fees or taxes.</p>
+                <p data-i18n-html="about.power"><strong>Buying power.</strong> We take the value of your money at the end and remove the price rise since the start. What is left is what it can buy, in start-year dollars.</p>
+                <p data-i18n-html="about.art"><strong>The art.</strong> Each asset is shown as a plaster cast that erodes into blue crystal, like a relic from the future: what time and inflation do to money.</p>
+                <p data-i18n-html="about.data"><strong>The data.</strong> Yearly total returns from Aswath Damodaran (NYU Stern). Inflation is US CPI, December to December. No fees or taxes.</p>
             </div>
             <p class="sources">
                 <span id="dataNote">Data 1928 to 2025</span> ·
-                <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histret.html" target="_blank" rel="noopener">Damodaran</a> ·
+                <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histret.html" target="_blank" rel="noopener" data-i18n="src.damodaran">Damodaran</a> ·
                 <a href="https://fred.stlouisfed.org/series/CPIAUCNS" target="_blank" rel="noopener">CPI (FRED)</a> ·
-                <a href="data/returns.json">Download data</a> ·
-                <a href="https://github.com/kiknaio/realreturns.xyz" target="_blank" rel="noopener">Source</a>
+                <a href="data/returns.json" data-i18n="src.download">Download data</a> ·
+                <a href="https://github.com/kiknaio/realreturns.xyz" target="_blank" rel="noopener" data-i18n="src.source">Source</a>
             </p>
-            <p class="disclaimer">For education only. Not investment advice. Past returns do not predict future returns.</p>
+            <p class="disclaimer" data-i18n="disclaimer">For education only. Not investment advice. Past returns do not predict future returns.</p>
         </section>
 
         <footer class="footer">
-            <span>Made by Giorgi Kiknadze</span>
+            <span data-i18n="madeBy">Made by Giorgi Kiknadze</span>
             <span class="footer-links">
                 <a href="https://x.com/kiknaio" target="_blank" rel="noopener">@kiknaio</a>
                 <a href="https://www.linkedin.com/in/giorgikiknadze/" target="_blank" rel="noopener">LinkedIn</a>
@@ -180,10 +193,10 @@
         <div class="modal-panel">
             <figure class="modal-media"><img id="mImage" src="" alt="" width="900" height="900"></figure>
             <div class="modal-body" id="mBody">
-                <button type="button" class="modal-close" id="mClose" aria-label="Close">
+                <button type="button" class="modal-close" id="mClose" aria-label="Close" data-i18n-aria="modal.close">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
                 </button>
-                <p class="m-kicker"><span class="swatch" id="mSwatch"></span>Asset</p>
+                <p class="m-kicker"><span class="swatch" id="mSwatch"></span><span data-i18n="modal.kicker">Asset</span></p>
                 <h2 class="m-title" id="mTitle">Gold</h2>
                 <p class="m-lede" id="mLede"></p>
 
@@ -196,14 +209,14 @@
                 </div>
 
                 <dl class="m-facts">
-                    <div><dt>What it is</dt><dd id="mWhat"></dd></div>
-                    <div><dt>How people own it</dt><dd id="mOwn"></dd></div>
-                    <div><dt>Against inflation</dt><dd id="mInflation"></dd></div>
-                    <div><dt>The risk</dt><dd id="mRisk"></dd></div>
+                    <div><dt data-i18n="facts.what">What it is</dt><dd id="mWhat"></dd></div>
+                    <div><dt data-i18n="facts.own">How people own it</dt><dd id="mOwn"></dd></div>
+                    <div><dt data-i18n="facts.inflation">Against inflation</dt><dd id="mInflation"></dd></div>
+                    <div><dt data-i18n="facts.risk">The risk</dt><dd id="mRisk"></dd></div>
                 </dl>
                 <p class="m-note" id="mNote" hidden></p>
 
-                <nav class="m-nav" aria-label="Other assets">
+                <nav class="m-nav" aria-label="Other assets" data-i18n-aria="modal.nav">
                     <button type="button" class="m-nav-btn" id="mPrev"><span aria-hidden="true">←</span> <span id="mPrevName"></span></button>
                     <button type="button" class="m-nav-btn" id="mNext"><span id="mNextName"></span> <span aria-hidden="true">→</span></button>
                 </nav>
@@ -212,9 +225,10 @@
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-    <noscript><p class="container">Turn on JavaScript to change the amount and period.</p></noscript>
+    <noscript><p class="container" data-i18n="noscript">Turn on JavaScript to change the amount and period.</p></noscript>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="assets/i18n.js"></script>
     <script src="data/returns.js"></script>
     <script src="assets/app.js"></script>
     <!-- Privacy-first analytics -->

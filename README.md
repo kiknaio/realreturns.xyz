@@ -11,6 +11,9 @@ can share it.
 
 The asset sculptures in `assets/img` were generated with an image model (Codex).
 
+The site is in English and Georgian (language menu in the header, or `?lang=ka`). All text is in
+[`assets/i18n.js`](assets/i18n.js); add a language by adding one more block there.
+
 ## Data
 
 All numbers are calculated in the browser from one file, [`data/returns.json`](data/returns.json)
