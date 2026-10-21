@@ -77,16 +77,15 @@
                 <p class="intro" id="introText">Prices rose 70% from 2005 to 2025. A dollar kept as cash lost 41% of its buying power. Here is what kept up.</p>
             </div>
             <figure class="sequence">
-                <img id="heroImg" src="assets/img/sequence.jpg" srcset="assets/img/sequence-800.jpg 800w, assets/img/sequence.jpg 1536w" sizes="(max-width: 1080px) 100vw, 1016px" width="1536" height="380" alt="Five white plaster banknotes in a row. The first is whole; each next one has eroded more into pale blue crystal, until the last is almost all crystal.">
-                <!-- What one dollar from the start year buys at five points in the period, one under each note. -->
-                <ol class="dollar-steps" id="dollarSteps" aria-label="What one dollar buys over the period">
-                    <li style="left: 11.3%"><strong>$1.00</strong><span>2005</span></li>
-                    <li style="left: 29.8%"><strong>$0.88</strong><span>2009</span></li>
-                    <li style="left: 48.8%"><strong>$0.81</strong><span>2014</span></li>
-                    <li style="left: 68.1%"><strong>$0.73</strong><span>2020</span></li>
-                    <li style="left: 88.1%"><strong>$0.59</strong><span>2025</span></li>
+                <!-- One dollar bill at five points in the period. Each bill's area is what one dollar from the start year still buys. -->
+                <ol class="dollar-steps" id="dollarSteps" aria-label="What one dollar from 2005 buys over time">
+                    <li style="--s: 1.000"><span class="bill-slot"><img class="bill" src="assets/img/dollar.jpg" alt="" width="600" height="258"></span><strong>$1.00</strong><span class="step-year">2005</span></li>
+                    <li style="--s: 0.939"><span class="bill-slot"><img class="bill" src="assets/img/dollar.jpg" alt="" width="600" height="258"></span><strong>$0.88</strong><span class="step-year">2009</span></li>
+                    <li style="--s: 0.896"><span class="bill-slot"><img class="bill" src="assets/img/dollar.jpg" alt="" width="600" height="258"></span><strong>$0.80</strong><span class="step-year">2015</span></li>
+                    <li style="--s: 0.855"><span class="bill-slot"><img class="bill" src="assets/img/dollar.jpg" alt="" width="600" height="258"></span><strong>$0.73</strong><span class="step-year">2020</span></li>
+                    <li style="--s: 0.766"><span class="bill-slot"><img class="bill" src="assets/img/dollar.jpg" alt="" width="600" height="258"></span><strong>$0.59</strong><span class="step-year">2025</span></li>
                 </ol>
-                <figcaption class="sequence-caption" id="seqCaption">One dollar at the start of 2005, and what it buys at the end of each year shown.</figcaption>
+                <figcaption class="sequence-caption" id="seqCaption">One dollar at the start of 2005, and what it buys at the end of each year shown. Each bill's size matches its buying power.</figcaption>
             </figure>
         </section>
 

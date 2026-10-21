@@ -154,23 +154,25 @@ a { color: inherit; }
 .intro { font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 36ch; padding-bottom: 8px; }
 @media (max-width: 860px) { .intro { margin-top: 22px; } }
 
-.sequence { margin-top: 28px; }
-/* The photo's studio wall is lifted to white and multiplied onto the page, so the notes stand on the page itself. */
-#heroImg {
-    display: block; width: 100%; height: auto;
-    filter: brightness(1.11) contrast(1.04); mix-blend-mode: multiply;
-    -webkit-mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
-    mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
+.sequence { margin-top: 40px; }
+/* Five bills on one baseline. --s is the bill's linear scale (square root of its buying power). */
+.dollar-steps {
+    list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(10px, 2.4vw, 28px); align-items: end;
 }
-:root[data-theme="dark"] #heroImg { filter: none; mix-blend-mode: normal; border-radius: 24px; -webkit-mask-image: none; mask-image: none; }
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) #heroImg { filter: none; mix-blend-mode: normal; border-radius: 24px; -webkit-mask-image: none; mask-image: none; }
+.dollar-steps li { display: grid; justify-items: center; }
+.bill-slot { width: 100%; aspect-ratio: 600 / 258; display: flex; align-items: flex-end; justify-content: center; }
+.bill {
+    display: block; width: calc(var(--s) * 100%); height: auto; border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(30, 26, 20, 0.14), 0 14px 28px -14px rgba(30, 26, 20, 0.45);
+    /* The bill loses a little color as it loses value. */
+    filter: saturate(calc(0.35 + 0.65 * var(--s) * var(--s)));
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.6s ease;
 }
-.dollar-steps { list-style: none; position: relative; height: 52px; margin-top: 4px; }
-.dollar-steps li { position: absolute; transform: translateX(-50%); display: grid; justify-items: center; font-variant-numeric: tabular-nums; }
-.dollar-steps strong { font-size: clamp(16px, 2.2vw, 24px); font-weight: 600; letter-spacing: -0.03em; }
+@media (prefers-reduced-motion: reduce) { .bill { transition: none; } }
+.dollar-steps strong { margin-top: 14px; font-size: clamp(16px, 2.2vw, 24px); font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .dollar-steps li:last-child strong { color: var(--accent); }
-.dollar-steps span { font-size: 13px; color: var(--muted); }
+.step-year { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .sequence-caption { text-align: center; font-size: 13px; color: var(--muted); margin-top: 6px; }
 
 /* Controls: amount and period */

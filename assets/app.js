@@ -172,12 +172,15 @@
         let cpi = 1, y = from;
         years.forEach((year, k) => {
             if (k > 0) for (; y <= year; y++) cpi *= 1 + D.inflation[idx(y)];
+            // Area, not width, follows the value, so the picture does not exaggerate the loss.
+            items[k].style.setProperty('--s', Math.sqrt(Math.min(1, 1 / cpi)).toFixed(3));
             items[k].querySelector('strong').textContent = '$' + (1 / cpi).toFixed(2);
-            items[k].querySelector('span').textContent = String(year);
+            items[k].querySelector('.step-year').textContent = String(year);
         });
+        $('#dollarSteps').setAttribute('aria-label', `What one dollar from ${from} buys over time`);
         $('#seqCaption').textContent = from === to
-            ? `One dollar at the start of ${from}, and what it buys at the end of the year.`
-            : `One dollar at the start of ${from}, and what it buys at the end of each year shown.`;
+            ? `One dollar at the start of ${from}, and what it buys at the end of the year. Each bill's size matches its buying power.`
+            : `One dollar at the start of ${from}, and what it buys at the end of each year shown. Each bill's size matches its buying power.`;
     }
 
     function renderIntro(cash) {
