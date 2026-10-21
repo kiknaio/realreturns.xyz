@@ -645,6 +645,7 @@
         const { from, to, amount } = state;
         const n = to - from + 1;
         const log = n >= 30;
+        const compact = window.innerWidth < 600;
         Chart.defaults.font.family = 'Geist, "Noto Sans Georgian", system-ui, -apple-system, "Segoe UI", sans-serif';
         Chart.defaults.font.size = 12;
         Chart.defaults.color = cssVar('--muted');
@@ -680,7 +681,7 @@
                 maintainAspectRatio: false,
                 animation: motion() ? { duration: 350 } : false,
                 interaction: { mode: 'index', intersect: false },
-                layout: { padding: { right: labelRoom() } },
+                layout: { padding: { left: 2, right: compact ? 6 : labelRoom() } },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -712,8 +713,11 @@
                     },
                 },
             },
-            plugins: [endLabels],
+            plugins: compact ? [] : [endLabels],
         });
+        // Phones get a legend under the chart instead of names at the line ends.
+        $('#chartLegend').replaceChildren(...results.map(r =>
+            el('li', {}, [el('i', { style: { background: cssVar(r.color) } }), r.name])));
     }
 
     // ---------- Controls ----------
@@ -871,6 +875,15 @@
         ready.then(() => render()).finally(() => { animate = true; });
         const linked = ASSETS.find(a => `#${a.img}` === location.hash);
         if (linked) openAsset(linked.key);
+        // The chart switches between end-of-line names and a legend at the phone breakpoint.
+        let wasCompact = window.innerWidth < 600, resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const compact = window.innerWidth < 600;
+                if (compact !== wasCompact) { wasCompact = compact; renderChart(); }
+            }, 150);
+        });
         // Smooth scrolling only after load, so a reload with #section does not glide.
         window.addEventListener('load', () => document.documentElement.classList.add('smooth'), { once: true });
     }

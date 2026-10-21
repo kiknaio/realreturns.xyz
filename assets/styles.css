@@ -223,8 +223,8 @@ a { color: inherit; }
 .amount-input:focus-within { outline: 2px solid var(--focus); outline-offset: 0; }
 
 .period-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.period-value { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.period-len { font-size: 15px; font-weight: 500; letter-spacing: 0; color: var(--muted); margin-left: 6px; }
+.period-value { display: inline-flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; font-size: 26px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.period-len { font-size: 15px; font-weight: 500; letter-spacing: 0; color: var(--muted); }
 
 /* Two handles on one timeline. The track is inset by the thumb radius so the ticks line up. */
 .year-range { position: relative; height: 40px; margin-top: 2px; }
@@ -442,3 +442,36 @@ html.modal-open { overflow: hidden; }
 :lang(ka) .hero h1 { letter-spacing: -0.02em; line-height: 1.12; font-size: clamp(38px, 6vw, 72px); }
 :lang(ka) h2, :lang(ka) .m-title { letter-spacing: -0.01em; line-height: 1.25; }
 :lang(ka) .asset-title, :lang(ka) .period-value, :lang(ka) .asset-real { letter-spacing: 0; }
+
+/* ---------- Phones ---------- */
+button, .asset-open, a { -webkit-tap-highlight-color: transparent; }
+.chart-legend { display: none; }
+@media (max-width: 600px) {
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; list-style: none; margin-top: 14px; font-size: 12px; color: var(--ink-2); }
+    .chart-legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .chart-legend i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
+    .chart-box { margin-top: 10px; }
+    .period-value { font-size: 22px; }
+    /* Quick periods: one row you can swipe, instead of several stacked rows. */
+    .chips {
+        flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; scroll-padding-inline: 18px;
+        margin: 18px -18px 0; padding: 18px 18px 2px;
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+    }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { flex: none; scroll-snap-align: start; }
+    .m-title { font-size: 30px; }
+    .modal-body { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 400px) {
+    .brand-tld, .lang-chevron { display: none; }
+    .lang-btn { padding: 0 10px; }
+    .header-actions { gap: 6px; }
+    .brand { gap: 8px; }
+}
+@media (max-width: 360px) {
+    .m-stats { grid-template-columns: 1fr; }
+    .dollar-steps { gap: 6px; }
+}
+:lang(ka) .hero h1 { font-size: clamp(30px, 9.2vw, 72px); }
