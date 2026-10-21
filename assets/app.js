@@ -271,11 +271,54 @@
         strip.hidden = false;
     }
 
+    // ---------- Relic: the eroded coin in the hero ----------
+    const relic = { shown: 0, target: 0, raf: 0, label: '' };
+
+    function sizeRelic() {
+        const cv = $('#relicCanvas');
+        const px = Math.round(cv.clientWidth * Math.min(2, window.devicePixelRatio || 1));
+        if (px > 0 && cv.width !== px) { cv.width = px; cv.height = px; }
+    }
+
+    function paintRelic() {
+        if (!window.Relic) return;
+        Relic.paint($('#relicCanvas'), { erosion: relic.shown, theme: effectiveTheme(), label: relic.label });
+    }
+
+    function setRelic(target, label) {
+        relic.target = target;
+        relic.label = label;
+        cancelAnimationFrame(relic.raf);
+        if (reducedMotion()) { relic.shown = target; paintRelic(); return; }
+        const from = relic.shown, t0 = performance.now(), dur = 1100;
+        const step = now => {
+            const t = Math.min(1, (now - t0) / dur);
+            relic.shown = from + (target - from) * (1 - Math.pow(1 - t, 3));
+            paintRelic();
+            if (t < 1) relic.raf = requestAnimationFrame(step);
+        };
+        relic.raf = requestAnimationFrame(step);
+    }
+
+    function renderRelic(sim) {
+        const { from, to } = state;
+        // Eroded share = purchasing power lost to inflation (fees and taxes are not part of it).
+        const lost = Math.max(0, 1 - 1 / sim.cpi);
+        $('#plFrom').textContent = String(from);
+        $('#plBody').textContent = lost > 0
+            ? `Plaster and calcite. ${pct(lost, 1, false)} eroded by the end of ${to}.`
+            : `Plaster. Not eroded: prices fell, so $1 bought ${pct(1 / sim.cpi - 1, 1, false)} more by the end of ${to}.`;
+        $('#relicCanvas').setAttribute('aria-label',
+            `A plaster one-dollar coin. ${pct(lost, 0, false)} of its face has eroded into blue crystal, the share of purchasing power lost from ${from} to ${to}.`);
+        setRelic(lost, String(from));
+    }
+
     // ---------- Charts ----------
     const charts = {};
 
     function chartBase() {
         Chart.defaults.font.family = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif';
+        Chart.defaults.font.weight = 400;
         Chart.defaults.font.size = 11;
         Chart.defaults.color = cssVar('--muted');
         Chart.defaults.borderColor = cssVar('--grid');
@@ -323,9 +366,10 @@
             const c = chart.ctx;
             let lastLabelX = -Infinity;
             c.save();
-            c.font = `500 10px ${Chart.defaults.font.family}`;
+            c.font = '500 9.5px "IBM Plex Mono", ui-monospace, monospace';
             c.textBaseline = 'top';
-            for (const [year, label] of EVENTS) {
+            for (const [year, name] of EVENTS) {
+                const label = name.toUpperCase();
                 const xv = year + 0.5;
                 if (xv < xs.min || xv > xs.max) continue;
                 const x = xs.getPixelForValue(xv);
@@ -355,7 +399,7 @@
         const gray = cssVar('--neutral-series');
         const log = state.scale === 'logarithmic';
 
-        $('#growthSub').textContent = `Real value is in ${from} dollars. Grey lines mark major events.`;
+        $('#growthSub').textContent = `Real value is in ${from} dollars. Dashed lines mark major events.`;
 
         charts.growth?.destroy();
         charts.growth = new Chart($('#growthChart'), {
@@ -505,7 +549,7 @@
 
         // Axis labels every 10 years.
         c.fillStyle = cssVar('--muted');
-        c.font = `10px ${Chart?.defaults?.font?.family || 'system-ui'}`;
+        c.font = '10px "IBM Plex Mono", ui-monospace, monospace';
         for (let y = Math.ceil(D.firstYear / 10) * 10; y <= D.lastYear; y += 10) {
             const k = idx(y);
             c.textAlign = 'right'; c.textBaseline = 'middle';
@@ -659,69 +703,60 @@
     async function downloadImage() {
         try { await document.fonts.ready; } catch (e) {}
         const sim = simulate(state);
+        const lost = Math.max(0, 1 - 1 / sim.cpi);
         const W = 1200, H = 630;
         const cv = el('canvas', { width: W, height: H });
         const c = cv.getContext('2d');
-        const font = (w, s) => `${w} ${s}px Inter, system-ui, sans-serif`;
-        const blue = '#3987e5', ink = '#f0efec', ink2 = '#c3c2b7', muted = '#898781';
+        const display = (w, px) => `${w} ${px}px "Inter Tight", Inter, system-ui, sans-serif`;
+        const mono = px => `500 ${px}px "IBM Plex Mono", ui-monospace, monospace`;
+        const ink = '#1e1d1b', ink2 = '#4f4c46', muted = '#7a766d', wall = '#a8a398', blue = '#2b7fae';
 
-        c.fillStyle = '#0d0d0d'; c.fillRect(0, 0, W, H);
-        c.fillStyle = blue; roundRect(c, 64, 60, 30, 30, 7); c.fill();
-        c.strokeStyle = '#fff'; c.lineWidth = 3; c.lineCap = 'round'; c.lineJoin = 'round';
-        c.beginPath(); c.moveTo(70, 81); c.lineTo(76, 75); c.lineTo(81, 79); c.lineTo(90, 69); c.stroke();
-        c.fillStyle = ink; c.font = font(700, 24); c.textBaseline = 'middle';
-        c.fillText('realreturns', 106, 76);
-        c.fillStyle = muted; c.fillText('.xyz', 106 + c.measureText('realreturns').width, 76);
+        c.fillStyle = '#efede8';
+        c.fillRect(0, 0, W, H);
+        if (window.Relic) Relic.paintTo(c, 660, 40, 540, { erosion: lost, theme: 'light', label: String(state.from) });
 
-        const nom = money(sim.nominal), real = money(sim.realValue);
         c.textBaseline = 'alphabetic';
-        c.font = font(700, 76);
-        let x = 64;
-        const y = 220;
-        c.fillStyle = ink; c.fillText('Your ', x, y); x += c.measureText('Your ').width;
-        c.fillStyle = muted; c.fillText(nom, x, y);
-        const nw = c.measureText(nom).width;
-        c.strokeStyle = '#e66767'; c.lineWidth = 6; c.beginPath(); c.moveTo(x, y - 26); c.lineTo(x + nw, y - 26); c.stroke();
-        x = 64;
-        c.fillStyle = ink; c.fillText('is really ', x, y + 90); x += c.measureText('is really ').width;
-        c.fillStyle = blue; c.fillText(real, x, y + 90); x += c.measureText(real).width;
-        c.fillStyle = ink; c.fillText('.', x, y + 90);
+        c.fillStyle = muted; c.font = mono(16);
+        c.fillText(`EXHIBIT · S&P 500 AFTER INFLATION · ${state.from}–${state.to}`, 64, 92);
 
-        c.font = font(500, 26); c.fillStyle = ink2;
+        // Shrink the headline until it fits beside the coin.
+        const nom = money(sim.nominal), real = money(sim.realValue);
+        let size = 76;
+        c.font = display(700, size);
+        while (size > 40 && Math.max(c.measureText(`Your ${nom}`).width, c.measureText(`is really ${real}.`).width) > 600) {
+            size -= 2;
+            c.font = display(700, size);
+        }
+        const y1 = 200, y2 = y1 + size * 1.02;
+        let x = 64;
+        c.fillStyle = ink; c.fillText('Your ', x, y1); x += c.measureText('Your ').width;
+        c.fillStyle = wall; c.fillText(nom, x, y1);
+        const nw = c.measureText(nom).width;
+        c.strokeStyle = '#b4442c'; c.lineWidth = size * 0.06;
+        c.beginPath(); c.moveTo(x, y1 - size * 0.3); c.lineTo(x + nw, y1 - size * 0.3); c.stroke();
+        x = 64;
+        c.fillStyle = ink; c.fillText('is really ', x, y2); x += c.measureText('is really ').width;
+        c.fillStyle = blue; c.fillText(real, x, y2); x += c.measureText(real).width;
+        c.fillStyle = ink; c.fillText('.', x, y2);
+
+        c.font = '500 22px Inter, system-ui, sans-serif'; c.fillStyle = ink2;
         const lead = state.monthly > 0 ? `${money(state.amount)} + ${money(state.monthly)}/month` : money(state.amount);
-        c.fillText(`${lead} in the S&P 500, ${state.from}–${state.to}, in ${state.from} dollars.`, 64, 380);
+        c.fillText(`${lead} in the S&P 500, in ${state.from} dollars.`, 64, y2 + 58);
 
         const stats = [
-            ['Real return / year', pct(sim.realCagr)],
-            ['Before inflation', pct(sim.nominalCagr)],
-            ['Prices rose', pct(sim.cpi - 1)],
+            ['REAL RETURN / YEAR', pct(sim.realCagr)],
+            ['BEFORE INFLATION', pct(sim.nominalCagr)],
+            ['PRICES ROSE', pct(sim.cpi - 1)],
         ];
         stats.forEach(([k, v], i) => {
-            const sx = 64 + i * 300;
-            c.fillStyle = muted; c.font = font(500, 20); c.fillText(k, sx, 470);
-            c.fillStyle = ink; c.font = font(700, 44); c.fillText(v, sx, 522);
+            const sx = 64 + i * 200;
+            c.fillStyle = muted; c.font = mono(14); c.fillText(k, sx, 478);
+            c.fillStyle = ink; c.font = display(600, 40); c.fillText(v, sx, 524);
         });
-        c.fillStyle = muted; c.font = font(500, 20);
-        c.fillText('realreturns.xyz · data: Damodaran (NYU Stern), BLS CPI-U', 64, 585);
-
-        // Small real-value line on the right.
-        const pts = [state.amount, ...sim.rows.map(r => r.realValue)];
-        const lo = Math.min(...pts), hi = Math.max(...pts), span = hi - lo || 1;
-        c.strokeStyle = blue; c.lineWidth = 4;
-        c.beginPath();
-        pts.forEach((v, i) => {
-            const px = 960 + (i / (pts.length - 1 || 1)) * 176, py = 560 - ((v - lo) / span) * 120;
-            i ? c.lineTo(px, py) : c.moveTo(px, py);
-        });
-        c.stroke();
+        c.fillStyle = muted; c.font = mono(15);
+        c.fillText('REALRETURNS.XYZ · DAMODARAN (NYU STERN) · BLS CPI-U', 64, 588);
 
         cv.toBlob(b => b && saveBlob(b, `realreturns-${state.from}-${state.to}.png`), 'image/png');
-    }
-
-    function roundRect(c, x, y, w, h, r) {
-        c.beginPath();
-        c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
-        c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
     }
 
     // ---------- Tooltips (hover, focus and tap) ----------
@@ -927,6 +962,7 @@
         syncForm();
         const sim = simulate(state);
         renderHero(sim);
+        renderRelic(sim);
         renderStats(sim);
         renderTable(sim);
         renderDrawdowns();
@@ -964,7 +1000,12 @@
         renderYtd();
         // The HTML already shows the default numbers, so count up from them, not from zero.
         heroShown = { nominal: 83034, real: 48762 };
+        sizeRelic();
         update();
+
+        new ResizeObserver(() => { sizeRelic(); paintRelic(); }).observe($('#relicCanvas'));
+        // Repaint once web fonts load, so the coin engraving and chart text use them.
+        document.fonts?.ready.then(() => { window.Relic?.reset(); renderAll(); });
 
         let lastW = 0;
         new ResizeObserver(entries => {
