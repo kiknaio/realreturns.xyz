@@ -21,8 +21,7 @@
         [2008, 'Financial crisis'], [2020, 'COVID'], [2022, 'Inflation spike'],
     ];
 
-    const HEAT_MIN = -0.10;
-    const HEAT_MAX = 0.15;
+    const HOLD_CHOICES = [1, 5, 10, 20, 30];
 
     // ---------- Helpers ----------
     const $ = (sel, root = document) => root.querySelector(sel);
@@ -59,13 +58,6 @@
         return node;
     };
 
-    function mixHex(a, b, t) {
-        const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
-        const ch = (p, s) => (p >> s) & 255;
-        const m = s => Math.round(ch(pa, s) + (ch(pb, s) - ch(pa, s)) * t);
-        return `rgb(${m(16)}, ${m(8)}, ${m(0)})`;
-    }
-
     function withAlpha(hex, a) {
         const p = parseInt(hex.slice(1), 16);
         return `rgba(${(p >> 16) & 255}, ${(p >> 8) & 255}, ${p & 255}, ${a})`;
@@ -79,6 +71,10 @@
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => { t.hidden = true; }, 2200);
     }
+
+    // False during the first render: a reload must show the final state, not an animation.
+    let animate = false;
+    const motion = () => animate && !reducedMotion();
 
     // ---------- State (kept in the URL so every scenario can be shared) ----------
     let D = null;
@@ -107,7 +103,7 @@
         const p = new URLSearchParams();
         for (const k of Object.keys(DEFAULTS)) if (state[k] !== DEFAULTS[k]) p.set(k, state[k]);
         const q = p.toString();
-        history.replaceState(null, '', q ? `?${q}` : location.pathname);
+        history.replaceState(null, '', (q ? `?${q}` : location.pathname) + location.hash);
     }
 
     // ---------- Math ----------
@@ -177,7 +173,7 @@
     // ---------- Hero, stats, sparklines ----------
     let heroShown = null;
     function animateNumber(node, from, to) {
-        if (reducedMotion() || from == null || from === to) { node.textContent = money(to); return; }
+        if (!motion() || from == null || from === to) { node.textContent = money(to); return; }
         const t0 = performance.now(), dur = 650;
         const step = now => {
             const t = Math.min(1, (now - t0) / dur);
@@ -289,7 +285,7 @@
         relic.target = target;
         relic.label = label;
         cancelAnimationFrame(relic.raf);
-        if (reducedMotion()) { relic.shown = target; paintRelic(); return; }
+        if (!motion()) { relic.shown = target; paintRelic(); return; }
         const from = relic.shown, t0 = performance.now(), dur = 1100;
         const step = now => {
             const t = Math.min(1, (now - t0) / dur);
@@ -414,7 +410,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: reducedMotion() ? false : { duration: 400 },
+                animation: motion() ? { duration: 400 } : false,
                 interaction: { mode: 'index', intersect: false },
                 layout: { padding: { top: 18 } }, // room for event labels above the plot
                 plugins: {
@@ -488,7 +484,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: reducedMotion() ? false : { duration: 400 },
+                animation: motion() ? { duration: 400 } : false,
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: { position: 'bottom', labels: { boxWidth: 14, boxHeight: 2, padding: 12, color: cssVar('--ink-2') } },
@@ -510,104 +506,95 @@
         });
     }
 
-    // ---------- Heatmap ----------
-    const heat = { cell: 0, left: 34, bottom: 22, top: 4 };
+    // ---------- Time in the market: how often each holding period beat inflation ----------
+    let holdYears = 10;
 
-    function heatColor(v, mid, pos, neg) {
-        if (v >= 0) return mixHex(mid, pos, clamp(v / HEAT_MAX, 0, 1));
-        return mixHex(mid, neg, clamp(v / HEAT_MIN, 0, 1));
+    function holdWindows(h) {
+        const out = [];
+        for (let y = D.firstYear; y + h - 1 <= D.lastYear; y++) out.push({ from: y, to: y + h - 1, real: realAnnualized(y, y + h - 1) });
+        return out;
     }
 
-    function renderHeatmap() {
-        const canvas = $('#heatCanvas');
-        const wrap = canvas.parentElement;
-        const N = D.years.length;
-        const W = wrap.clientWidth;
-        // Cap the cell size so the triangle stays about one screen tall on wide displays.
-        const cell = clamp((W - heat.left - 4) / N, 2, 7.5);
-        const H = heat.top + cell * N + heat.bottom;
-        const CW = Math.min(W, heat.left + cell * N + 4);
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.round(CW * dpr);
-        canvas.height = Math.round(H * dpr);
-        canvas.style.width = CW + 'px';
-        canvas.style.height = H + 'px';
-        heat.cell = cell;
-
-        const c = canvas.getContext('2d');
-        c.setTransform(dpr, 0, 0, dpr, 0, 0);
-        c.clearRect(0, 0, CW, H);
-        const mid = cssVar('--heat-mid'), pos = cssVar('--heat-pos'), neg = cssVar('--heat-neg');
-
-        for (let s = 0; s < N; s++) {
-            for (let e = s; e < N; e++) {
-                c.fillStyle = heatColor(realAnnualized(D.firstYear + s, D.firstYear + e), mid, pos, neg);
-                // Overlap by a fraction of a pixel so no seams show between cells.
-                c.fillRect(heat.left + e * cell, heat.top + s * cell, cell + 0.6, cell + 0.6);
-            }
+    function renderHolding() {
+        for (const card of $$('.odds-card')) {
+            const h = +card.dataset.hold;
+            const w = holdWindows(h);
+            const wins = w.filter(x => x.real > 0).length;
+            card.querySelector('.odds-value').textContent = Math.round((wins / w.length) * 100) + '%';
+            card.setAttribute('aria-pressed', String(h === holdYears));
         }
 
-        // Axis labels every 10 years.
-        c.fillStyle = cssVar('--muted');
-        c.font = '10px "IBM Plex Mono", ui-monospace, monospace';
-        for (let y = Math.ceil(D.firstYear / 10) * 10; y <= D.lastYear; y += 10) {
-            const k = idx(y);
-            c.textAlign = 'right'; c.textBaseline = 'middle';
-            c.fillText(String(y), heat.left - 6, heat.top + (k + 0.5) * cell);
-            c.textAlign = 'center'; c.textBaseline = 'top';
-            c.fillText(String(y), heat.left + (k + 0.5) * cell, heat.top + N * cell + 6);
+        const w = holdWindows(holdYears);
+        const wins = w.filter(x => x.real > 0).length;
+        const worst = w.reduce((a, b) => (b.real < a.real ? b : a));
+        const best = w.reduce((a, b) => (b.real > a.real ? b : a));
+        const years = `${holdYears} year${holdYears > 1 ? 's' : ''}`;
+        $('#holdAnswer').replaceChildren(
+            `Held for ${years}, the S&P 500 beat inflation in `,
+            el('strong', { text: `${wins} of ${w.length}` }),
+            ` periods. Worst start: ${worst.from} (${pct(worst.real)} a year). Best start: ${best.from} (${pct(best.real)} a year).`,
+        );
+        $('#holdChart').setAttribute('aria-label', `Bar chart: real return per year for each ${years} period since ${D.firstYear}`);
+
+        if (!window.Chart) return;
+        const up = cssVar('--series-1'), down = cssVar('--critical');
+        charts.hold?.destroy();
+        charts.hold = new Chart($('#holdChart'), {
+            type: 'bar',
+            data: {
+                labels: w.map(x => String(x.from)),
+                datasets: [{
+                    data: w.map(x => +(x.real * 100).toFixed(2)),
+                    backgroundColor: w.map(x => (x.real >= 0 ? up : down)),
+                    borderRadius: 2,
+                    barPercentage: 0.9,
+                    categoryPercentage: 1,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: motion() ? { duration: 400 } : false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        ...tooltipStyle(),
+                        displayColors: false,
+                        callbacks: {
+                            title: items => {
+                                const x = w[items[0].dataIndex];
+                                return holdYears === 1 ? `${x.from}` : `Start of ${x.from} to end of ${x.to}`;
+                            },
+                            label: item => `${pct(w[item.dataIndex].real)} a year after inflation`,
+                            footer: () => 'Click to load this period',
+                        },
+                    },
+                },
+                onClick: (evt, items) => {
+                    if (!items.length) return;
+                    const x = w[items[0].index];
+                    state.from = x.from;
+                    state.to = x.to;
+                    update();
+                    toast(`Loaded ${x.from}–${x.to}`);
+                },
+                onHover: (evt, items) => { evt.native.target.style.cursor = items.length ? 'pointer' : 'default'; },
+                scales: {
+                    x: { grid: { display: false }, border: { color: cssVar('--axis') }, ticks: { maxRotation: 0, autoSkipPadding: 14 } },
+                    y: {
+                        grid: { color: ctx => (ctx.tick.value === 0 ? cssVar('--ink-2') : cssVar('--grid')) },
+                        border: { display: false },
+                        ticks: { callback: v => `${v > 0 ? '+' : v < 0 ? MINUS : ''}${Math.abs(v)}%`, maxTicksLimit: 7 },
+                    },
+                },
+            },
+        });
+    }
+
+    function bindHolding() {
+        for (const card of $$('.odds-card')) {
+            card.addEventListener('click', () => { holdYears = +card.dataset.hold; renderHolding(); });
         }
-        c.save();
-        c.textAlign = 'left'; c.textBaseline = 'top';
-        c.fillText('Start ↓  ·  End →', heat.left + 2, heat.top + N * cell - 14);
-        c.restore();
-
-        // Mark the selected period.
-        const sx = heat.left + idx(state.to) * cell, sy = heat.top + idx(state.from) * cell;
-        c.strokeStyle = cssVar('--ink');
-        c.lineWidth = 1;
-        c.globalAlpha = 0.35;
-        c.beginPath();
-        c.moveTo(heat.left, sy + cell / 2); c.lineTo(sx, sy + cell / 2);
-        c.moveTo(sx + cell / 2, heat.top + N * cell); c.lineTo(sx + cell / 2, sy + cell);
-        c.stroke();
-        c.globalAlpha = 1;
-        c.lineWidth = 2;
-        const ring = Math.max(cell, 6);
-        c.strokeRect(sx + cell / 2 - ring / 2 - 1, sy + cell / 2 - ring / 2 - 1, ring + 2, ring + 2);
-    }
-
-    function heatCellAt(evt) {
-        const rect = $('#heatCanvas').getBoundingClientRect();
-        const x = evt.clientX - rect.left - heat.left;
-        const y = evt.clientY - rect.top - heat.top;
-        const e = Math.floor(x / heat.cell), s = Math.floor(y / heat.cell);
-        const N = D.years.length;
-        if (e < 0 || s < 0 || e >= N || s >= N || e < s) return null;
-        return { from: D.firstYear + s, to: D.firstYear + e };
-    }
-
-    function bindHeatmap() {
-        const canvas = $('#heatCanvas');
-        const pop = $('#tipPop');
-        canvas.addEventListener('pointermove', evt => {
-            const hit = heatCellAt(evt);
-            if (!hit) { pop.hidden = true; return; }
-            const v = realAnnualized(hit.from, hit.to);
-            const n = hit.to - hit.from + 1;
-            pop.textContent = `${hit.from}–${hit.to} (${n} yr${n > 1 ? 's' : ''}): ${pct(v)} a year after inflation. Click to load.`;
-            showPopAt(evt.clientX, evt.clientY);
-        });
-        canvas.addEventListener('pointerleave', () => { pop.hidden = true; });
-        canvas.addEventListener('click', evt => {
-            const hit = heatCellAt(evt);
-            if (!hit) return;
-            state.from = hit.from;
-            state.to = hit.to;
-            syncForm();
-            update();
-            toast(`Loaded ${hit.from}–${hit.to}`);
-        });
     }
 
     // ---------- Drawdowns ----------
@@ -966,12 +953,12 @@
         renderStats(sim);
         renderTable(sim);
         renderDrawdowns();
-        renderHeatmap();
         if (window.Chart) {
             chartBase();
             renderGrowth(sim);
             renderCompare();
         }
+        renderHolding();
     }
 
     function renderAll() {
@@ -979,16 +966,13 @@
         update();
     }
 
-    async function init() {
+    function init() {
         bindTips();
         bindTheme();
         bindDrawer();
-        try {
-            D = await (await fetch('data/returns.json')).json();
-        } catch (e) {
-            toast('Could not load the data. Reload the page.');
-            return;
-        }
+        // data/returns.js sets the data synchronously, so the page renders in one pass.
+        D = window.RETURNS_DATA;
+        if (!D) { toast('Could not load the data. Reload the page.'); return; }
         realPrefix = [0];
         for (let k = 0; k < D.years.length; k++) realPrefix.push(realPrefix[k] + Math.log((1 + D.sp500[k]) / (1 + D.inflation[k])));
 
@@ -996,22 +980,19 @@
         readUrl();
         syncForm();
         bindForm();
-        bindHeatmap();
+        bindHolding();
         renderYtd();
-        // The HTML already shows the default numbers, so count up from them, not from zero.
-        heroShown = { nominal: 83034, real: 48762 };
+        heroShown = null;
         sizeRelic();
         update();
 
         new ResizeObserver(() => { sizeRelic(); paintRelic(); }).observe($('#relicCanvas'));
         // Repaint once web fonts load, so the coin engraving and chart text use them.
-        document.fonts?.ready.then(() => { window.Relic?.reset(); renderAll(); });
-
-        let lastW = 0;
-        new ResizeObserver(entries => {
-            const w = entries[0].contentRect.width;
-            if (Math.abs(w - lastW) > 1) { lastW = w; renderHeatmap(); }
-        }).observe($('#heatCanvas').parentElement);
+        // Animations start only after that, when the reader changes something.
+        const ready = document.fonts ? document.fonts.ready : Promise.resolve();
+        ready.then(() => { window.Relic?.reset(); renderAll(); }).finally(() => { animate = true; });
+        // Smooth scrolling only after load, so a reload with #section does not glide.
+        window.addEventListener('load', () => document.documentElement.classList.add('smooth'), { once: true });
     }
 
     init();

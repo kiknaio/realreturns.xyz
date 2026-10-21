@@ -25,9 +25,6 @@
     --neutral-series: #8d887e;
     --good: #1f6b3a;
     --critical: #b4442c;
-    --heat-mid: #e6e3dc;
-    --heat-pos: #1f6690;
-    --heat-neg: #b4532f;
     --focus: #2b7fae;
     --cast: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(60, 52, 40, 0.06), 0 12px 32px -12px rgba(60, 52, 40, 0.18);
     --shadow: 0 12px 40px rgba(60, 52, 40, 0.16);
@@ -60,9 +57,6 @@
         --neutral-series: #8f8a80;
         --good: #4cb36b;
         --critical: #e07a5f;
-        --heat-mid: #34322f;
-        --heat-pos: #4aa8d8;
-        --heat-neg: #d4724d;
         --focus: #4aa8d8;
         --cast: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
         --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -92,9 +86,6 @@
     --neutral-series: #8f8a80;
     --good: #4cb36b;
     --critical: #e07a5f;
-    --heat-mid: #34322f;
-    --heat-pos: #4aa8d8;
-    --heat-neg: #d4724d;
     --focus: #4aa8d8;
     --cast: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
     --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -103,8 +94,10 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { scroll-behavior: smooth; scroll-padding-top: 72px; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-padding-top: 72px; }
+/* Turned on after load, so a reload with #section lands at once instead of gliding. */
+html.smooth { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html.smooth { scroll-behavior: auto; } }
 body {
     font-family: var(--font-body);
     background: var(--page);
@@ -304,11 +297,20 @@ a { color: inherit; }
 .bar-fill { position: absolute; top: 2px; bottom: 2px; border-radius: 2px; }
 .bar-val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 
-/* Heatmap */
-.heat-wrap { position: relative; }
-#heatCanvas { display: block; margin: 0 auto; max-width: 100%; cursor: crosshair; touch-action: manipulation; }
-.heat-legend { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.heat-scale { width: 140px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--heat-neg), var(--heat-mid) 40%, var(--heat-pos)); }
+/* Time in the market */
+.odds { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+@media (max-width: 700px) { .odds { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.odds-card {
+    display: grid; gap: 2px; text-align: left; cursor: pointer;
+    background: var(--plaster-hi); border: 1px solid var(--border); border-radius: 2px; padding: 12px 14px; box-shadow: var(--cast);
+}
+.odds-card:hover { border-color: var(--border-strong); }
+.odds-card[aria-pressed="true"] { border-color: var(--series-1); box-shadow: 0 0 0 1px var(--series-1), var(--cast); }
+.odds-years, .odds-label { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.odds-value { font-family: var(--font-display); font-size: 30px; font-weight: 600; letter-spacing: -0.04em; line-height: 1.15; }
+.odds-card[aria-pressed="true"] .odds-value { color: var(--series-1); }
+.hold-answer { font-size: 16px; color: var(--ink-2); margin-bottom: 14px; max-width: 70ch; }
+.hold-answer strong { color: var(--ink); }
 
 /* Tables */
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; }

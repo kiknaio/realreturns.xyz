@@ -116,7 +116,10 @@ def main():
         **series,
         "ytd": ytd,
     }
-    (ROOT / "data" / "returns.json").write_text(json.dumps(out, separators=(",", ":")) + "\n")
+    text = json.dumps(out, separators=(",", ":"))
+    (ROOT / "data" / "returns.json").write_text(text + "\n")
+    # Same data as a script, so the page can render before first paint without a fetch.
+    (ROOT / "data" / "returns.js").write_text(f"window.RETURNS_DATA = {text};\n")
     (ROOT / "data" / "constituents.csv").write_bytes(get(CONSTITUENTS))
     print(f"{years[0]}-{last}, {len(years)} years; ytd={ytd}")
 

@@ -5,7 +5,7 @@ What the S&P 500 really returned after inflation, for any period since 1928.
 - Calculator: start and end year, lump sum, monthly deposits, fund fee and tax drag. The state is kept in the URL, so every scenario has a link.
 - Growth chart with major market events, linear or log scale.
 - Comparison with 10-year Treasuries, T-bills, gold, US homes, corporate bonds and cash.
-- Heatmap of the real annual return for every start and end year.
+- How often holding for 1, 5, 10, 20 or 30 years beat inflation, with one bar per start year.
 - Real recovery time after each crash of 20% or more.
 - Year-by-year table with CSV download, and a share image for each scenario.
 

@@ -26,7 +26,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=optional" rel="stylesheet">
     <link rel="stylesheet" href="assets/styles.css">
 
     <script>
@@ -86,7 +86,7 @@
             <nav class="site-nav" aria-label="Sections">
                 <a href="#calculator">Calculator</a>
                 <a href="#compare">Compare</a>
-                <a href="#heatmap">Heatmap</a>
+                <a href="#holding">Holding</a>
                 <a href="#drawdowns">Crashes</a>
                 <a href="#table">Data</a>
                 <a href="#faq">FAQ</a>
@@ -242,22 +242,45 @@
             <p class="footnote">US homes: national home price index, no rent or costs. Gold: price was fixed until 1971. Cash under the mattress earns 0%, so it loses exactly the inflation rate.</p>
         </section>
 
-        <!-- Heatmap -->
-        <section id="heatmap" class="panel" aria-labelledby="heatTitle">
+        <!-- Time in the market -->
+        <section id="holding" class="panel" aria-labelledby="holdTitle">
             <div class="panel-head">
                 <div>
-                    <p class="room">Room 04 · Excavation map</p>
-                    <h2 id="heatTitle">Every start year, every end year</h2>
-                    <p class="panel-sub">Real S&P 500 return per year for each period since 1928. Tap or click a cell to load that period.</p>
-                </div>
-                <div class="heat-legend" aria-hidden="true">
-                    <span>−10%</span><span class="heat-scale"></span><span>+15%</span>
+                    <p class="room">Room 04 · Time in the market</p>
+                    <h2 id="holdTitle">Does holding longer help?</h2>
+                    <p class="panel-sub">How often the S&P 500 beat inflation, for every period since 1928. Choose how long you hold.</p>
                 </div>
             </div>
-            <div class="heat-wrap">
-                <canvas id="heatCanvas" role="img" aria-label="Heatmap of real annualized S&P 500 returns for every start and end year since 1928"></canvas>
+            <div class="odds" id="odds" role="group" aria-label="How long you hold">
+                <button type="button" class="odds-card" data-hold="1" aria-pressed="false">
+                    <span class="odds-years">Hold 1 year</span>
+                    <span class="odds-value">68%</span>
+                    <span class="odds-label">beat inflation</span>
+                </button>
+                <button type="button" class="odds-card" data-hold="5" aria-pressed="false">
+                    <span class="odds-years">Hold 5 years</span>
+                    <span class="odds-value">77%</span>
+                    <span class="odds-label">beat inflation</span>
+                </button>
+                <button type="button" class="odds-card" data-hold="10" aria-pressed="true">
+                    <span class="odds-years">Hold 10 years</span>
+                    <span class="odds-value">88%</span>
+                    <span class="odds-label">beat inflation</span>
+                </button>
+                <button type="button" class="odds-card" data-hold="20" aria-pressed="false">
+                    <span class="odds-years">Hold 20 years</span>
+                    <span class="odds-value">100%</span>
+                    <span class="odds-label">beat inflation</span>
+                </button>
+                <button type="button" class="odds-card" data-hold="30" aria-pressed="false">
+                    <span class="odds-years">Hold 30 years</span>
+                    <span class="odds-value">100%</span>
+                    <span class="odds-label">beat inflation</span>
+                </button>
             </div>
-            <p class="footnote">Rows: year you started (start of year). Columns: year you stopped (end of year). Blue = gained purchasing power. Red = lost it.</p>
+            <p class="hold-answer" id="holdAnswer">Held for 10 years, the S&P 500 beat inflation in <strong>78 of 89</strong> periods. Worst start: 1999 (−3.8% a year). Best start: 1949 (+17.9% a year).</p>
+            <div class="chart-box"><canvas id="holdChart" role="img" aria-label="Bar chart: real return per year for each 10-year period since 1928"></canvas></div>
+            <p class="footnote">Each bar is one start year. Above the line: at the end, your money bought more than at the start. Below the line: it bought less. Click a bar to load that period.</p>
         </section>
 
         <!-- Drawdowns -->
@@ -345,7 +368,7 @@
                 <h2>Questions</h2>
                 <details>
                     <summary>Is a 7% real return from the S&P 500 realistic?</summary>
-                    <p>From 1928 to 2025 the S&P 500 returned 6.8% per year after inflation (10.0% before inflation), with dividends reinvested. The path is not smooth. 20-year real returns went from 0.6% per year (1929–1948) to 13.2% per year (1980–1999). Use the heatmap to see every period.</p>
+                    <p>From 1928 to 2025 the S&P 500 returned 6.8% per year after inflation (10.0% before inflation), with dividends reinvested. The path is not smooth. 20-year real returns went from 0.6% per year (1929–1948) to 13.2% per year (1980–1999). The "Does holding longer help?" section shows every period.</p>
                 </details>
                 <details>
                     <summary>Has the S&P 500 ever lost money after inflation over 20 years?</summary>
@@ -431,6 +454,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-delaunay@6.0.4/dist/d3-delaunay.min.js"></script>
     <script src="assets/relic.js"></script>
+    <script src="data/returns.js"></script>
     <script src="assets/app.js"></script>
     <!-- Privacy-first analytics -->
     <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
