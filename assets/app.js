@@ -363,10 +363,10 @@
         $('#mSwatch').style.background = color;
 
         $('#mStats').replaceChildren(
-            stat(from === to ? `In ${from}` : `${from} – ${to}`, money(r.real), `${pct(r.perYear)} a year after inflation`, r.real >= amount ? 'up' : 'down'),
+            stat(from === to ? `In ${from}` : `${from} to ${to}`, money(r.real), `${pct(r.perYear)} a year after inflation`, r.real >= amount ? 'up' : 'down'),
             stat(`Since ${D.firstYear}`, `${pct(longRun.perYear)}`, 'a year after inflation, on average', longRun.perYear >= 0 ? 'up' : 'down'),
             stat('Best and worst year', `${pct(best.v, 0)} / ${pct(worst.v, 0)}`, `${best.y} and ${worst.y}, after inflation`),
-            stat('Longest wait', `${wait.years} years`, wait.to ? `to get back buying power, ${wait.from}–${wait.to}` : `below its ${wait.from} buying power, and counting`),
+            stat('Longest wait', `${wait.years} years`, wait.to ? `to get back buying power, ${wait.from} to ${wait.to}` : `below its ${wait.from} buying power, and counting`),
         );
 
         const y = sparkScale(amount, [r]);
@@ -553,7 +553,7 @@
         // When the handles meet in the right half, put the start handle on top so it can move left.
         $('#fromYear').style.zIndex = from === to && from > (D.firstYear + D.lastYear) / 2 ? 2 : '';
         const n = to - from + 1;
-        $('#periodText').textContent = from === to ? String(from) : `${from} – ${to}`;
+        $('#periodText').textContent = from === to ? String(from) : `${from} to ${to}`;
         $('#periodLen').textContent = `${n} year${n > 1 ? 's' : ''}`;
     }
 
@@ -643,7 +643,7 @@
         // data/returns.js sets the data synchronously, so the page renders in one pass.
         D = window.RETURNS_DATA;
         if (!D) { toast('Could not load the data. Reload the page.'); return; }
-        $('#dataNote').textContent = `Data ${D.firstYear}–${D.lastYear}`;
+        $('#dataNote').textContent = `Data ${D.firstYear} to ${D.lastYear}`;
 
         setupYearRange();
         readUrl();
