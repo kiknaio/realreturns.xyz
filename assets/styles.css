@@ -1,6 +1,6 @@
 /*
- * Look: quiet plaster (light) or volcanic ash (dark), one calcite-blue accent,
- * a light grain, and one typeface: Geist. The eroded coins are the art.
+ * Look: quiet plaster (light) or volcanic ash (dark), a calcite-blue accent, pastel asset
+ * colors, a light grain, and one typeface: Geist. The eroded sculptures are the art.
  */
 :root {
     color-scheme: light;
@@ -16,16 +16,17 @@
     --muted: #7a766d;
     --grid: #e2dfd8;
     --axis: #c4c0b6;
-    --series-1: #2b7fae;
-    --series-2: #eb6834;
-    --series-3: #1baf7a;
-    --series-4: #eda100;
-    --series-5: #e87ba4;
-    --series-6: #008300;
-    --neutral-series: #8d887e;
-    --good: #1f6b3a;
-    --critical: #b4442c;
-    --focus: #2b7fae;
+    --series-1: #6a9cc4;
+    --series-2: #9f8fd0;
+    --series-3: #df8fae;
+    --series-4: #d6a650;
+    --series-5: #e0906f;
+    --series-6: #7fae86;
+    --neutral-series: #a8a196;
+    --good: #3f7a52;
+    --critical: #a9553e;
+    --focus: #4f86ad;
+    --accent: #4f86ad;
     --cast: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(60, 52, 40, 0.06), 0 12px 32px -12px rgba(60, 52, 40, 0.18);
     --shadow: 0 12px 40px rgba(60, 52, 40, 0.16);
     --grain-opacity: 0.35;
@@ -47,16 +48,17 @@
         --muted: #8f8a80;
         --grid: #33322f;
         --axis: #4a4844;
-        --series-1: #3f9ccb;
-        --series-2: #d95926;
-        --series-3: #199e70;
-        --series-4: #c98500;
-        --series-5: #d55181;
-        --series-6: #008300;
-        --neutral-series: #8f8a80;
-        --good: #4cb36b;
-        --critical: #e07a5f;
-        --focus: #4aa8d8;
+        --series-1: #7aaed6;
+        --series-2: #ad9fdc;
+        --series-3: #e69fbc;
+        --series-4: #ddb060;
+        --series-5: #e8a080;
+        --series-6: #8fbf96;
+        --neutral-series: #a39d92;
+        --good: #8cc49a;
+        --critical: #e59a82;
+        --focus: #6fa9d4;
+        --accent: #6fa9d4;
         --cast: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
         --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         --grain-opacity: 0.22;
@@ -76,16 +78,17 @@
     --muted: #8f8a80;
     --grid: #33322f;
     --axis: #4a4844;
-    --series-1: #3f9ccb;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --series-5: #d55181;
-    --series-6: #008300;
-    --neutral-series: #8f8a80;
-    --good: #4cb36b;
-    --critical: #e07a5f;
-    --focus: #4aa8d8;
+    --series-1: #7aaed6;
+    --series-2: #ad9fdc;
+    --series-3: #e69fbc;
+    --series-4: #ddb060;
+    --series-5: #e8a080;
+    --series-6: #8fbf96;
+    --neutral-series: #a39d92;
+    --good: #8cc49a;
+    --critical: #e59a82;
+    --focus: #6fa9d4;
+    --accent: #6fa9d4;
     --cast: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
     --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     --grain-opacity: 0.22;
@@ -146,7 +149,7 @@ a { color: inherit; }
     font-family: var(--font-display); font-weight: 600;
     font-size: clamp(46px, 7.4vw, 92px); line-height: 0.96; letter-spacing: -0.055em; max-width: 9ch;
 }
-.hero h1 em { font-style: normal; color: var(--series-1); }
+.hero h1 em { font-style: normal; color: var(--accent); }
 .intro { margin-top: 26px; font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 36ch; }
 
 .relic { display: flex; flex-direction: column; align-items: center; }
@@ -184,7 +187,7 @@ a { color: inherit; }
 /* Two handles on one timeline. The track is inset by the thumb radius so the ticks line up. */
 .year-range { position: relative; height: 40px; margin-top: 2px; }
 .year-track { position: absolute; left: 11px; right: 11px; top: 50%; height: 6px; margin-top: -3px; border-radius: 3px; background: var(--grid); }
-.year-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--series-1); }
+.year-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--accent); }
 .year-input {
     position: absolute; inset: 0; width: 100%; height: 40px; margin: 0;
     -webkit-appearance: none; appearance: none; background: none; pointer-events: none;
@@ -194,14 +197,14 @@ a { color: inherit; }
 .year-input::-webkit-slider-thumb {
     -webkit-appearance: none; pointer-events: auto; cursor: grab; margin-top: 9px;
     width: 22px; height: 22px; border-radius: 50%;
-    background: var(--plaster-hi); border: 2px solid var(--series-1); box-shadow: 0 1px 4px rgba(30, 26, 20, 0.25);
+    background: var(--plaster-hi); border: 2px solid var(--accent); box-shadow: 0 1px 4px rgba(30, 26, 20, 0.25);
 }
 .year-input::-moz-range-thumb {
     pointer-events: auto; cursor: grab; width: 18px; height: 18px; border-radius: 50%;
-    background: var(--plaster-hi); border: 2px solid var(--series-1); box-shadow: 0 1px 4px rgba(30, 26, 20, 0.25);
+    background: var(--plaster-hi); border: 2px solid var(--accent); box-shadow: 0 1px 4px rgba(30, 26, 20, 0.25);
 }
 .year-input:focus-visible { outline: none; }
-.year-input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--series-1) 30%, transparent); }
+.year-input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 30%, transparent); }
 .year-ticks { position: relative; height: 18px; margin: 0 11px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .year-ticks span { position: absolute; transform: translateX(-50%); }
 @media (max-width: 600px) { .year-ticks span:nth-child(even) { display: none; } }
@@ -228,28 +231,32 @@ h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -0.035
 /* Asset rows */
 .results { margin-bottom: 80px; }
 .asset, .list-head {
-    display: grid; grid-template-columns: 56px minmax(150px, 1.15fr) minmax(0, 1.3fr) 170px;
-    gap: 22px; align-items: center;
+    display: grid; grid-template-columns: 76px minmax(150px, 1fr) minmax(0, 1.25fr) 170px;
+    gap: 24px; align-items: center;
 }
 .list-head { font-size: 12px; font-weight: 500; color: var(--muted); padding: 6px 0 8px; }
-.zero-wrap { position: relative; height: 18px; }
-.zero-label { position: absolute; transform: translateX(-50%); white-space: nowrap; }
 .list-head-value { text-align: right; }
 .asset-list { list-style: none; border-top: 1px solid var(--border-strong); }
-.asset {
-    padding: 16px 10px; margin: 0 -10px; border-bottom: 1px solid var(--border);
-    border-radius: 14px; transition: opacity 0.2s, background 0.2s; outline-offset: -2px;
+.asset { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.asset-photo {
+    width: 76px; height: 76px; display: block; object-fit: cover; border-radius: 16px;
+    background: #efede8; box-shadow: var(--cast);
 }
-.asset:hover, .asset:focus-visible { background: var(--surface); }
-.asset.is-dim { opacity: 0.42; }
-.asset-coin { width: 56px; height: 56px; display: block; }
 .asset-name { display: grid; gap: 2px; min-width: 0; }
 .asset-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
 .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 .asset-note { font-size: 13px; color: var(--muted); }
-.asset-bar { position: relative; height: 34px; }
-.bar-zero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ink-2); opacity: 0.5; }
-.bar-fill { position: absolute; top: 12px; height: 10px; border-radius: 999px; }
+
+/* Small buying-power line. All rows share one scale; the dashed line is what you put in. */
+.asset-spark { position: relative; height: 46px; }
+.spark { display: block; width: 100%; height: 100%; overflow: visible; }
+.spark-line { stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.spark-base { stroke: var(--ink-2); stroke-opacity: 0.45; stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.spark-dot {
+    position: absolute; right: -4px; width: 9px; height: 9px; border-radius: 50%;
+    transform: translateY(-50%); box-shadow: 0 0 0 2px var(--page);
+}
+
 .asset-value { display: grid; justify-items: end; text-align: right; font-variant-numeric: tabular-nums; }
 .asset-real { font-size: 24px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
 .asset-rate { font-size: 13px; font-weight: 600; }
@@ -258,10 +265,9 @@ h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -0.035
 .down { color: var(--critical); }
 @media (max-width: 720px) {
     .list-head { display: none; }
-    .asset { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 6px 14px; padding: 14px 8px; margin: 0 -8px; }
-    .asset-coin { width: 48px; height: 48px; grid-row: span 2; }
-    .asset-bar { grid-column: 2 / 4; height: 18px; }
-    .bar-fill { top: 4px; }
+    .asset { grid-template-columns: 60px minmax(0, 1fr) auto; gap: 8px 14px; padding: 14px 0; }
+    .asset-photo { width: 60px; height: 60px; border-radius: 13px; grid-row: span 2; }
+    .asset-spark { grid-column: 2 / 4; height: 36px; margin-right: 6px; }
     .asset-value { grid-column: 3; grid-row: 1; }
     .asset-note { display: none; }
 }
@@ -272,7 +278,7 @@ h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -0.035
     padding: 28px; box-shadow: var(--cast); margin-bottom: 80px;
 }
 @media (max-width: 600px) { .chart-section { padding: 20px 16px; border-radius: 20px; } }
-.chart-box { position: relative; height: 380px; margin-top: 20px; }
+.chart-box { position: relative; height: 380px; margin-top: 16px; }
 @media (max-width: 600px) { .chart-box { height: 300px; } }
 
 /* About */

@@ -6,13 +6,13 @@
 
     // Each asset keeps its color everywhere (color follows the asset, not its rank).
     const ASSETS = [
-        { key: 'sp500', name: 'S&P 500', note: '500 large US companies, dividends reinvested', color: '--series-1' },
-        { key: 'gold', name: 'Gold', note: 'Gold price. Fixed by law until 1971', color: '--series-4' },
-        { key: 'baa', name: 'Corporate bonds', note: 'Bonds of US companies (Baa rated)', color: '--series-6' },
-        { key: 'tbond', name: '10-year Treasury', note: 'US government bonds', color: '--series-2' },
-        { key: 'realEstate', name: 'US homes', note: 'Home prices only, no rent or costs', color: '--series-5' },
-        { key: 'tbill', name: 'Savings', note: '3-month Treasury bills, like a savings account', color: '--series-3' },
-        { key: 'cash', name: 'Cash', note: 'Dollar bills that earn nothing', color: '--neutral-series' },
+        { key: 'sp500', name: 'S&P 500', note: '500 large US companies, dividends reinvested', color: '--series-1', img: 'sp500' },
+        { key: 'gold', name: 'Gold', note: 'Gold price. Fixed by law until 1971', color: '--series-4', img: 'gold' },
+        { key: 'baa', name: 'Corporate bonds', note: 'Bonds of US companies (Baa rated)', color: '--series-6', img: 'bonds' },
+        { key: 'tbond', name: '10-year Treasury', note: 'US government bonds', color: '--series-2', img: 'treasury' },
+        { key: 'realEstate', name: 'US homes', note: 'Home prices only, no rent or costs', color: '--series-5', img: 'homes' },
+        { key: 'tbill', name: 'Savings', note: '3-month Treasury bills, like a savings account', color: '--series-3', img: 'savings' },
+        { key: 'cash', name: 'Cash', note: 'Dollar bills that earn nothing', color: '--neutral-series', img: 'cash' },
     ];
 
     // ---------- Helpers ----------
@@ -160,35 +160,68 @@
 
     // ---------- Asset rows ----------
     let results = [];
-    let highlight = null;
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const svg = (tag, attrs) => {
+        const node = document.createElementNS(SVG_NS, tag);
+        for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+        return node;
+    };
+
+    // One log scale for every row, so the lines can be compared with each other.
+    function sparkScale(amount) {
+        const all = results.flatMap(r => r.path.map(p => p.y)).concat(amount);
+        const lo = Math.log(Math.min(...all)), hi = Math.log(Math.max(...all));
+        const span = hi - lo || 1;
+        return v => 38 - ((Math.log(v) - lo) / span) * 36;   // viewBox height 40, 2 units of padding
+    }
+
+    function spark(r, y, amount, color) {
+        const n = r.path.length - 1;
+        const pts = r.path.map((p, i) => [(i / n) * 100, y(p.y)]);
+        const line = pts.map(([px, py], i) => `${i ? 'L' : 'M'}${px.toFixed(2)},${py.toFixed(2)}`).join(' ');
+        const base = y(amount).toFixed(2);
+        const box = svg('svg', { viewBox: '0 0 100 40', preserveAspectRatio: 'none', class: 'spark' });
+        // Area above the dashed line (gained buying power) in the asset color, below it (lost) in red.
+        const above = `clip-up-${r.key}`, below = `clip-down-${r.key}`;
+        const defs = svg('defs', {});
+        const clipUp = svg('clipPath', { id: above });
+        clipUp.append(svg('rect', { x: 0, y: -10, width: 100, height: +base + 10 }));
+        const clipDown = svg('clipPath', { id: below });
+        clipDown.append(svg('rect', { x: 0, y: base, width: 100, height: 50 - base }));
+        defs.append(clipUp, clipDown);
+        const area = `${line} L100,${base} L0,${base} Z`;
+        box.append(
+            defs,
+            svg('path', { d: area, fill: withAlpha(color, 0.24), 'clip-path': `url(#${above})` }),
+            svg('path', { d: area, fill: withAlpha(cssVar('--critical'), 0.16), 'clip-path': `url(#${below})` }),
+            svg('line', { x1: 0, x2: 100, y1: base, y2: base, class: 'spark-base' }),
+            svg('path', { d: line, fill: 'none', stroke: color, class: 'spark-line' }),
+        );
+        const end = pts[pts.length - 1][1];
+        return el('div', { class: 'asset-spark', 'aria-hidden': 'true' }, [
+            box,
+            el('span', { class: 'spark-dot', style: { top: (end / 40) * 100 + '%', background: color } }),
+        ]);
+    }
 
     function renderRows() {
         const { from, to, amount } = state;
         $('#resultsTitle').textContent = `What ${money(amount)} from ${from} buys at the end of ${to}`;
         $('#resultsSub').textContent = `In ${from} dollars, so you can compare it with what you put in. Before fees and taxes.`;
+        $('#sparkHead').textContent = from === to ? `Buying power in ${from}` : `Buying power, ${from} → ${to}`;
 
+        const y = sparkScale(amount);
         const sorted = [...results].sort((a, b) => b.real - a.real);
-        const lo = Math.min(0, ...results.map(r => r.perYear));
-        const hi = Math.max(0, ...results.map(r => r.perYear));
-        const span = hi - lo || 1;
-        const zero = ((0 - lo) / span) * 100;
-        $('#zeroLabel').style.left = zero + '%';
-
         $('#assetList').replaceChildren(...sorted.map(r => {
-            const left = ((Math.min(0, r.perYear) - lo) / span) * 100;
-            const width = (Math.abs(r.perYear) / span) * 100;
+            const color = cssVar(r.color);
             const kept = r.real >= amount;
-            const coin = el('canvas', { class: 'asset-coin', 'aria-hidden': 'true' });
-            const row = el('li', { class: 'asset', 'data-key': r.key, tabindex: '0' }, [
-                coin,
+            const row = el('li', { class: 'asset', 'data-key': r.key }, [
+                el('img', { class: 'asset-photo', src: `assets/img/${r.img}.jpg`, alt: '', width: '160', height: '160', decoding: 'async' }),
                 el('div', { class: 'asset-name' }, [
-                    el('span', { class: 'asset-title' }, [el('span', { class: 'swatch', style: { background: cssVar(r.color) } }), r.name]),
+                    el('span', { class: 'asset-title' }, [el('span', { class: 'swatch', style: { background: color } }), r.name]),
                     el('span', { class: 'asset-note', text: r.note }),
                 ]),
-                el('div', { class: 'asset-bar', 'aria-hidden': 'true' }, [
-                    el('span', { class: 'bar-zero', style: { left: zero + '%' } }),
-                    el('span', { class: 'bar-fill', style: { left: left + '%', width: Math.max(width, 0.6) + '%', background: cssVar(r.color) } }),
-                ]),
+                spark(r, y, amount, color),
                 el('div', { class: 'asset-value' }, [
                     el('span', { class: 'asset-real', text: money(r.real) }),
                     el('span', { class: `asset-rate ${kept ? 'up' : 'down'}`, text: `${pct(r.perYear)} a year` }),
@@ -197,45 +230,38 @@
             ]);
             row.setAttribute('aria-label',
                 `${r.name}: buys what ${money(r.real)} bought in ${from}. ${pct(r.perYear)} a year after inflation. ${money(r.nominal)} in dollars.`);
-            row.addEventListener('pointerenter', () => setHighlight(r.key));
-            row.addEventListener('pointerleave', () => setHighlight(null));
-            row.addEventListener('focus', () => setHighlight(r.key));
-            row.addEventListener('blur', () => setHighlight(null));
-            row._coin = coin;
-            row._lost = r.lost;
             return row;
         }));
-        paintCoins();
-    }
-
-    function paintCoins() {
-        if (!window.Relic) return;
-        for (const row of $$('#assetList .asset')) {
-            sizeCanvas(row._coin);
-            Relic.paint(row._coin, { erosion: row._lost, theme: theme(), label: '' });
-        }
     }
 
     // ---------- Chart ----------
     let chart = null;
 
-    function chartColors(key, dim) {
-        const c = cssVar(ASSETS.find(a => a.key === key).color);
-        return dim ? withAlpha(c, 0.18) : c;
-    }
-
-    function setHighlight(key) {
-        highlight = key;
-        for (const row of $$('#assetList .asset')) row.classList.toggle('is-dim', key != null && row.dataset.key !== key);
-        if (!chart) return;
-        chart.data.datasets.forEach(ds => {
-            if (!ds.assetKey) return;
-            const dim = key != null && ds.assetKey !== key;
-            ds.borderColor = chartColors(ds.assetKey, dim);
-            ds.borderWidth = ds.assetKey === key ? 3 : ds.assetKey === 'sp500' && key == null ? 2.5 : 1.75;
-        });
-        chart.update('none');
-    }
+    // Writes each asset's name at the end of its line, so the pastel colors never carry identity alone.
+    const endLabels = {
+        id: 'endLabels',
+        afterDatasetsDraw(c) {
+            const items = c.data.datasets
+                .map((ds, i) => ({ ds, el: c.getDatasetMeta(i).data.at(-1) }))
+                .filter(x => x.ds.assetKey && x.el)
+                .map(x => ({ name: x.ds.label, color: x.ds.borderColor, x: x.el.x, y: x.el.y }))
+                .sort((a, b) => a.y - b.y);
+            const gap = 15, { top, bottom } = c.chartArea;
+            for (let i = 0; i < items.length; i++) items[i].y = Math.max(items[i].y, i ? items[i - 1].y + gap : top + 6);
+            for (let i = items.length - 1; i >= 0; i--) items[i].y = Math.min(items[i].y, i < items.length - 1 ? items[i + 1].y - gap : bottom - 2);
+            const ctx = c.ctx;
+            ctx.save();
+            ctx.font = `500 12px ${Chart.defaults.font.family}`;
+            ctx.textBaseline = 'middle';
+            for (const it of items) {
+                ctx.fillStyle = it.color;
+                ctx.beginPath(); ctx.arc(it.x + 10, it.y, 3.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = cssVar('--ink-2');
+                ctx.fillText(it.name, it.x + 18, it.y);
+            }
+            ctx.restore();
+        },
+    };
 
     function renderChart() {
         if (!window.Chart) return;
@@ -262,7 +288,7 @@
                         assetKey: r.key,
                         label: r.name,
                         data: r.path,
-                        borderColor: chartColors(r.key, false),
+                        borderColor: cssVar(r.color),
                         backgroundColor: cssVar(r.color),
                         borderWidth: r.key === 'sp500' ? 2.5 : 1.75,
                         borderDash: r.key === 'cash' ? [5, 4] : [],
@@ -277,6 +303,7 @@
                 maintainAspectRatio: false,
                 animation: motion() ? { duration: 350 } : false,
                 interaction: { mode: 'index', intersect: false },
+                layout: { padding: { right: window.innerWidth < 600 ? 92 : 128 } },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -308,8 +335,8 @@
                     },
                 },
             },
+            plugins: [endLabels],
         });
-        if (highlight) setHighlight(highlight);
     }
 
     // ---------- Controls ----------
@@ -426,7 +453,7 @@
         sizeCanvas($('#relicCanvas'));
         update();
 
-        new ResizeObserver(() => { sizeCanvas($('#relicCanvas')); paintHero(); paintCoins(); }).observe($('#relicCanvas'));
+        new ResizeObserver(() => { sizeCanvas($('#relicCanvas')); paintHero(); }).observe($('#relicCanvas'));
         // Repaint once web fonts load, so the coin engraving and chart text use them.
         // Animations start only after that, when the reader changes something.
         const ready = document.fonts ? document.fonts.ready : Promise.resolve();
