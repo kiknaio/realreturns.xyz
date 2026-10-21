@@ -237,7 +237,12 @@ h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -0.035
 .list-head { font-size: 12px; font-weight: 500; color: var(--muted); padding: 6px 0 8px; }
 .list-head-value { text-align: right; }
 .asset-list { list-style: none; border-top: 1px solid var(--border-strong); }
-.asset { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.asset { position: relative; padding: 14px 0; border-bottom: 1px solid var(--border); }
+/* One invisible button covers the row, so the whole row opens the asset modal. */
+.asset-open { position: absolute; inset: 0; z-index: 1; width: 100%; border: 0; background: none; cursor: pointer; border-radius: 12px; }
+.asset-open:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.asset-chevron { position: absolute; right: -26px; top: 50%; transform: translateY(-50%); font-size: 22px; color: var(--muted); line-height: 1; }
+@media (max-width: 1160px) { .asset-chevron { display: none; } }
 .asset-photo {
     width: 76px; height: 76px; display: block; object-fit: cover; border-radius: 16px;
     background: #efede8; box-shadow: var(--cast);
@@ -295,6 +300,89 @@ h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -0.035
 .footer-links { display: inline-flex; gap: 16px; }
 .footer a { color: var(--ink-2); text-decoration: none; }
 .footer a:hover { color: var(--ink); }
+
+/* Asset modal */
+html.modal-open { overflow: hidden; }
+.modal {
+    border: 0; padding: 0; margin: auto; background: transparent; color: var(--ink);
+    width: min(980px, calc(100vw - 48px)); max-width: none; max-height: min(720px, calc(100dvh - 48px)); overflow: visible;
+}
+.modal::backdrop { background: rgba(30, 26, 20, 0.42); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.modal[open] { animation: modal-in 0.38s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.modal[open]::backdrop { animation: fade-in 0.3s ease; }
+.modal.closing { animation: modal-out 0.18s ease forwards; }
+.modal.closing::backdrop { animation: fade-out 0.18s ease forwards; }
+@keyframes modal-in { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes modal-out { to { opacity: 0; transform: translateY(10px) scale(0.985); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .modal[open], .modal[open]::backdrop { animation: none; } }
+
+.modal-panel {
+    display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+    background: var(--surface); border-radius: 28px; overflow: hidden;
+    box-shadow: 0 40px 120px -20px rgba(30, 26, 20, 0.45), 0 0 0 1px var(--border);
+    /* A fixed height with a 0-min row lets the text column scroll inside the panel. */
+    height: min(720px, calc(100dvh - 48px)); grid-template-rows: minmax(0, 1fr);
+}
+.modal-media { background: #efede8; position: relative; overflow: hidden; }
+.modal-media { display: grid; place-items: center; }
+.modal-media img {
+    width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; display: block;
+    /* Soft top and bottom edges, so the photo melts into the backdrop color around it. */
+    -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
+}
+.modal[open] .modal-media img { animation: media-in 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes media-in { from { transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .modal[open] .modal-media img { animation: none; } }
+.modal-body { position: relative; overflow-y: auto; padding: 34px 34px 24px; overscroll-behavior: contain; }
+.modal-body:focus-visible { outline: none; }
+.modal-close {
+    position: sticky; top: 0; float: right; margin: -14px -14px 0 0; z-index: 2;
+    display: grid; place-items: center; width: 38px; height: 38px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink-2); cursor: pointer;
+}
+.modal-close:hover { color: var(--ink); }
+.m-kicker { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--muted); }
+.m-title { font-size: clamp(34px, 4vw, 46px); letter-spacing: -0.045em; line-height: 1; margin-top: 8px; }
+.m-lede { font-size: 17px; color: var(--ink-2); margin-top: 10px; max-width: 34ch; }
+
+.m-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+.m-stat { display: grid; gap: 1px; padding: 12px 14px; border-radius: 14px; background: var(--plaster-hi); border: 1px solid var(--border); }
+.m-stat-label { font-size: 12px; font-weight: 500; color: var(--muted); }
+.m-stat-value { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.m-stat-detail { font-size: 12px; color: var(--muted); }
+
+.m-chart { margin-top: 22px; }
+.m-chart-plot .asset-spark { height: 96px; }
+.m-chart-plot .spark-line { stroke-width: 2.5; }
+.m-chart-axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.m-chart-caption { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.m-facts { display: grid; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.m-facts dt { font-size: 13px; font-weight: 600; color: var(--ink); }
+.m-facts dd { font-size: 15px; color: var(--ink-2); margin-top: 2px; }
+.m-note { margin-top: 16px; font-size: 13px; color: var(--muted); padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.m-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--border); }
+.m-nav-btn { border: 1px solid var(--border-strong); background: transparent; color: var(--ink-2); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.m-nav-btn:hover { color: var(--ink); background: var(--surface-2); }
+
+@media (max-width: 760px) {
+    .modal { width: 100vw; max-height: 100dvh; margin: auto 0 0; }
+    .modal-panel { grid-template-columns: 1fr; border-radius: 24px 24px 0 0; height: 92dvh; grid-template-rows: auto minmax(0, 1fr); }
+    .modal-media { height: 34dvh; display: flex; justify-content: center; }
+    .modal-media img {
+        width: auto; height: 100%;
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+        mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    }
+    .modal-panel { position: relative; }
+    .modal-body { position: static; padding: 22px 20px 20px; }
+    /* On phones the close button sits over the photo, so it is always in reach. */
+    .modal-close { position: absolute; top: 14px; right: 14px; margin: 0; float: none; }
+    @keyframes modal-in { from { transform: translateY(40px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+}
 
 .toast {
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 500;

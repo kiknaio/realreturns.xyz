@@ -4,8 +4,12 @@ What your money really buys: the buying power of the S&P 500, gold, corporate bo
 10-year Treasuries, US homes, savings (T-bills) and cash after inflation, for any period since 1928.
 
 Choose an amount and a period. Each asset shows what your money buys at the end, in start-year
-dollars, and its real return per year. A small plaster coin erodes into crystal by the share of
-buying power the asset lost. The view is kept in the URL, so you can share it.
+dollars, its real return per year, and a small line of its buying power over the period.
+Click an asset to open a short explanation: what it is, how people own it, how it does against
+inflation, and its main risk. The view is kept in the URL (for example `?from=2000#gold`), so you
+can share it.
+
+The asset sculptures in `assets/img` were generated with an image model (Codex).
 
 ## Data
 

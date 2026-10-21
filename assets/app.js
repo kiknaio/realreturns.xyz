@@ -15,6 +15,59 @@
         { key: 'cash', name: 'Cash', note: 'Dollar bills that earn nothing', color: '--neutral-series', img: 'cash' },
     ];
 
+    const INFO = {
+        sp500: {
+            lede: 'A share of the 500 largest US companies, in one fund.',
+            what: 'The S&P 500 follows about 500 large US companies, such as Apple, Microsoft and Nvidia. Bigger companies count for more. The returns here include dividends, put back in.',
+            own: 'Most people buy a low-cost S&P 500 index fund or ETF through a broker or a retirement account. Large funds charge less than 0.1% a year.',
+            inflation: 'Companies can raise their prices and grow their profits when prices rise. That is why stocks have beaten inflation over long periods, but not in every decade.',
+            risk: 'Big, fast falls. The index lost more than a third of its value in 1931 and again in 2008, and buying power can take many years to come back.',
+        },
+        gold: {
+            lede: 'A metal that people have used to store value for thousands of years.',
+            what: 'The price of gold in dollars. Gold pays no interest and no dividends, so its return is only the change in its price.',
+            own: 'Bars and coins, or a gold ETF that holds metal in a vault. Bars and coins cost extra to buy, store and insure.',
+            inflation: 'Gold is often called a hedge against inflation. Over very long periods it kept up, but with long gaps: after its 1980 high, its buying power fell by more than three quarters and only came back in 2011.',
+            risk: 'Large price swings, with no income to soften them.',
+            note: 'Until 1971 the US government fixed the price of gold, so the early years change very little.',
+        },
+        baa: {
+            lede: 'Loans to US companies that pay you interest.',
+            what: 'A bond is a loan. The company pays interest every year and pays the loan back at the end. Baa is the lowest “investment grade” rating: solid companies, but not the safest.',
+            own: 'Usually through a corporate bond fund or ETF, which holds hundreds of bonds at once.',
+            inflation: 'Company bonds pay more interest than government bonds, to make up for the extra risk. That extra has kept them ahead of inflation over the long run.',
+            risk: 'A company can fail to pay. Bond prices also fall when interest rates rise, as they did in 2022.',
+        },
+        tbond: {
+            lede: 'A 10-year loan to the US government.',
+            what: 'The US Treasury borrows money for 10 years at a fixed interest rate. The return here includes the interest and the change in the bond’s price.',
+            own: 'Through a broker, TreasuryDirect, or a Treasury bond fund.',
+            inflation: 'The interest is fixed, so surprise inflation hurts. In the 1970s and in 2022, Treasury bonds lost a lot of buying power. TIPS are Treasury bonds that adjust for inflation.',
+            risk: 'Almost no risk that the US does not pay. But prices fall when interest rates rise, and fixed payments buy less when inflation is high.',
+        },
+        realEstate: {
+            lede: 'The price of a typical US home.',
+            what: 'A national index of US home prices. It shows only the change in price: no rent, repairs, property tax or mortgage.',
+            own: 'By buying a home. Real estate funds (REITs) own buildings too, but they behave more like stocks.',
+            inflation: 'Home prices have stayed a little ahead of inflation over the long run. Owners also get a place to live, which this number does not count.',
+            risk: 'Prices can fall, as they did from 2007 to 2011. Homes are slow and costly to buy and sell.',
+        },
+        tbill: {
+            lede: 'Very short loans to the US government. Close to a savings account.',
+            what: '3-month US Treasury bills. Their interest rate is close to what a high-yield savings account or a money market fund pays.',
+            own: 'A money market fund, a T-bill ETF, TreasuryDirect, or a high-yield savings account.',
+            inflation: 'The rate follows the Federal Reserve’s rate. When it is below inflation, as in most years from 2009 to 2022, savings lose buying power.',
+            risk: 'The value almost never falls, but buying power can shrink slowly for years.',
+        },
+        cash: {
+            lede: 'Dollar bills that earn nothing.',
+            what: 'Money in a drawer, or in an account that pays no interest. The number of dollars never changes.',
+            own: 'Everyone has some. It is useful for daily spending and emergencies.',
+            inflation: 'Cash loses exactly the inflation rate. Prices rise, so each dollar buys a little less every year.',
+            risk: 'No risk of a market crash, but a sure, slow loss of buying power.',
+        },
+    };
+
     // ---------- Helpers ----------
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -168,13 +221,14 @@
     };
 
     // One log scale for every row, so the lines can be compared with each other.
-    function sparkScale(amount) {
-        const all = results.flatMap(r => r.path.map(p => p.y)).concat(amount);
+    function sparkScale(amount, list = results) {
+        const all = list.flatMap(r => r.path.map(p => p.y)).concat(amount);
         const lo = Math.log(Math.min(...all)), hi = Math.log(Math.max(...all));
         const span = hi - lo || 1;
         return v => 38 - ((Math.log(v) - lo) / span) * 36;   // viewBox height 40, 2 units of padding
     }
 
+    let sparkId = 0;   // clip-path ids must be unique in the page
     function spark(r, y, amount, color) {
         const n = r.path.length - 1;
         const pts = r.path.map((p, i) => [(i / n) * 100, y(p.y)]);
@@ -182,7 +236,8 @@
         const base = y(amount).toFixed(2);
         const box = svg('svg', { viewBox: '0 0 100 40', preserveAspectRatio: 'none', class: 'spark' });
         // Area above the dashed line (gained buying power) in the asset color, below it (lost) in red.
-        const above = `clip-up-${r.key}`, below = `clip-down-${r.key}`;
+        const uid = ++sparkId;
+        const above = `clip-up-${uid}`, below = `clip-down-${uid}`;
         const defs = svg('defs', {});
         const clipUp = svg('clipPath', { id: above });
         clipUp.append(svg('rect', { x: 0, y: -10, width: 100, height: +base + 10 }));
@@ -215,7 +270,10 @@
         $('#assetList').replaceChildren(...sorted.map(r => {
             const color = cssVar(r.color);
             const kept = r.real >= amount;
+            const open = el('button', { type: 'button', class: 'asset-open', 'aria-label': `About ${r.name}` });
+            open.addEventListener('click', () => openAsset(r.key));
             const row = el('li', { class: 'asset', 'data-key': r.key }, [
+                open,
                 el('img', { class: 'asset-photo', src: `assets/img/${r.img}.jpg`, alt: '', width: '160', height: '160', decoding: 'async' }),
                 el('div', { class: 'asset-name' }, [
                     el('span', { class: 'asset-title' }, [el('span', { class: 'swatch', style: { background: color } }), r.name]),
@@ -227,11 +285,151 @@
                     el('span', { class: `asset-rate ${kept ? 'up' : 'down'}`, text: `${pct(r.perYear)} a year` }),
                     el('span', { class: 'asset-nominal', text: `${money(r.nominal)} in dollars` }),
                 ]),
+                el('span', { class: 'asset-chevron', 'aria-hidden': 'true', text: '›' }),
             ]);
             row.setAttribute('aria-label',
                 `${r.name}: buys what ${money(r.real)} bought in ${from}. ${pct(r.perYear)} a year after inflation. ${money(r.nominal)} in dollars.`);
             return row;
         }));
+    }
+
+    // ---------- Asset modal ----------
+    let modalKey = null;
+
+    // Longest time, since the data starts, that the asset stayed below an earlier buying-power high.
+    function longestWait(key) {
+        let level = 1, peak = 1, peakAt = D.firstYear - 1, best = { years: 0 };
+        for (let y = D.firstYear; y <= D.lastYear; y++) {
+            level *= (1 + yearReturn(key, y)) / (1 + D.inflation[idx(y)]);
+            if (level >= peak) {
+                if (y - peakAt > best.years && y - peakAt > 1) best = { years: y - peakAt, from: peakAt, to: y };
+                peak = level; peakAt = y;
+            }
+        }
+        if (D.lastYear - peakAt > best.years) best = { years: D.lastYear - peakAt, from: peakAt, to: null };
+        return best;
+    }
+
+    function bestWorst(key) {
+        let best = null, worst = null;
+        for (let y = D.firstYear; y <= D.lastYear; y++) {
+            const v = (1 + yearReturn(key, y)) / (1 + D.inflation[idx(y)]) - 1;
+            if (!best || v > best.v) best = { v, y };
+            if (!worst || v < worst.v) worst = { v, y };
+        }
+        return { best, worst };
+    }
+
+    function stat(label, value, detail, cls = '') {
+        return el('div', { class: 'm-stat' }, [
+            el('span', { class: 'm-stat-label', text: label }),
+            el('span', { class: `m-stat-value ${cls}`, text: value }),
+            detail ? el('span', { class: 'm-stat-detail', text: detail }) : null,
+        ]);
+    }
+
+    // Fills the space around the square photo with the photo's own top and bottom colors,
+    // so the sculpture shows whole and the frame looks like one continuous studio wall.
+    function matchBackdrop(img) {
+        try {
+            const c = document.createElement('canvas');
+            c.width = c.height = 32;
+            const ctx = c.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(img, 0, 0, 8, 8);
+            const px = (x, y) => { const d = ctx.getImageData(x, y, 1, 1).data; return `rgb(${d[0]}, ${d[1]}, ${d[2]})`; };
+            img.parentElement.style.background = `linear-gradient(${px(4, 0)} 30%, ${px(4, 7)} 70%)`;
+        } catch (e) { /* keep the default plaster background */ }
+    }
+
+    function openAsset(key) {
+        const r = results.find(x => x.key === key);
+        if (!r) return;
+        const info = INFO[key];
+        const { from, to, amount } = state;
+        const color = cssVar(r.color);
+        const longRun = calc(key, { from: D.firstYear, to: D.lastYear, amount: 1 });
+        const { best, worst } = bestWorst(key);
+        const wait = longestWait(key);
+        modalKey = key;
+
+        const m = $('#assetModal');
+        m.style.setProperty('--asset', color);
+        const img = $('#mImage');
+        img.onload = () => matchBackdrop(img);
+        img.src = `assets/img/large/${r.img}.jpg`;
+        img.alt = `A white plaster sculpture for ${r.name}, partly eroded into blue crystal.`;
+        $('#mTitle').textContent = r.name;
+        $('#mLede').textContent = info.lede;
+        $('#mSwatch').style.background = color;
+
+        $('#mStats').replaceChildren(
+            stat(from === to ? `In ${from}` : `${from} – ${to}`, money(r.real), `${pct(r.perYear)} a year after inflation`, r.real >= amount ? 'up' : 'down'),
+            stat(`Since ${D.firstYear}`, `${pct(longRun.perYear)}`, 'a year after inflation, on average', longRun.perYear >= 0 ? 'up' : 'down'),
+            stat('Best and worst year', `${pct(best.v, 0)} / ${pct(worst.v, 0)}`, `${best.y} and ${worst.y}, after inflation`),
+            stat('Longest wait', `${wait.years} years`, wait.to ? `to get back buying power, ${wait.from}–${wait.to}` : `below its ${wait.from} buying power, and counting`),
+        );
+
+        const y = sparkScale(amount, [r]);
+        $('#mChart').replaceChildren(spark(r, y, amount, color));
+        $('#mChartFrom').textContent = String(from);
+        $('#mChartTo').textContent = String(to);
+        $('#mChartCaption').textContent = `Buying power of ${money(amount)} in ${from} dollars. Dashed line: what you put in.`;
+
+        $('#mWhat').textContent = info.what;
+        $('#mOwn').textContent = info.own;
+        $('#mInflation').textContent = info.inflation;
+        $('#mRisk').textContent = info.risk;
+        $('#mNote').textContent = info.note || '';
+        $('#mNote').hidden = !info.note;
+
+        const order = $$('#assetList .asset').map(li => li.dataset.key);
+        const at = order.indexOf(key);
+        const prev = results.find(x => x.key === order[(at - 1 + order.length) % order.length]);
+        const next = results.find(x => x.key === order[(at + 1) % order.length]);
+        $('#mPrev').dataset.key = prev.key;
+        $('#mPrevName').textContent = prev.name;
+        $('#mNext').dataset.key = next.key;
+        $('#mNextName').textContent = next.name;
+
+        $('#mBody').scrollTop = 0;
+        if (!m.open) {
+            m.showModal();
+            document.documentElement.classList.add('modal-open');
+        }
+        // Readable link to this asset, for example #gold or #savings.
+        history.replaceState(null, '', location.pathname + location.search + `#${r.img}`);
+    }
+
+    function closeAsset() {
+        const m = $('#assetModal');
+        if (!m.open) return;
+        const done = () => {
+            m.classList.remove('closing');
+            m.close();
+            document.documentElement.classList.remove('modal-open');
+            modalKey = null;
+            history.replaceState(null, '', location.pathname + location.search);
+            const row = $(`#assetList .asset[data-key="${CSS.escape(m.dataset.lastKey || '')}"] .asset-open`);
+            row?.focus({ preventScroll: true });
+        };
+        m.dataset.lastKey = modalKey || '';
+        if (reducedMotion()) { done(); return; }
+        m.classList.add('closing');
+        setTimeout(done, 180);
+    }
+
+    function bindModal() {
+        const m = $('#assetModal');
+        $('#mClose').addEventListener('click', closeAsset);
+        // A click on the backdrop (outside the panel) closes the modal.
+        m.addEventListener('click', e => { if (e.target === m) closeAsset(); });
+        m.addEventListener('cancel', e => { e.preventDefault(); closeAsset(); });
+        $('#mPrev').addEventListener('click', () => openAsset($('#mPrev').dataset.key));
+        $('#mNext').addEventListener('click', () => openAsset($('#mNext').dataset.key));
+        m.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft') openAsset($('#mPrev').dataset.key);
+            if (e.key === 'ArrowRight') openAsset($('#mNext').dataset.key);
+        });
     }
 
     // ---------- Chart ----------
@@ -450,6 +648,7 @@
         setupYearRange();
         readUrl();
         bindControls();
+        bindModal();
         sizeCanvas($('#relicCanvas'));
         update();
 
@@ -458,6 +657,8 @@
         // Animations start only after that, when the reader changes something.
         const ready = document.fonts ? document.fonts.ready : Promise.resolve();
         ready.then(() => { window.Relic?.reset(); render(); }).finally(() => { animate = true; });
+        const linked = ASSETS.find(a => `#${a.img}` === location.hash);
+        if (linked) openAsset(linked.key);
         // Smooth scrolling only after load, so a reload with #section does not glide.
         window.addEventListener('load', () => document.documentElement.classList.add('smooth'), { once: true });
     }
