@@ -1,22 +1,19 @@
 # realreturns.xyz
 
-What the S&P 500 really returned after inflation, for any period since 1928.
+What your money really buys: the buying power of the S&P 500, gold, corporate bonds,
+10-year Treasuries, US homes, savings (T-bills) and cash after inflation, for any period since 1928.
 
-- Calculator: start and end year, lump sum, monthly deposits, fund fee and tax drag. The state is kept in the URL, so every scenario has a link.
-- Growth chart with major market events, linear or log scale.
-- Comparison with 10-year Treasuries, T-bills, gold, US homes, corporate bonds and cash.
-- How often holding for 1, 5, 10, 20 or 30 years beat inflation, with one bar per start year.
-- Real recovery time after each crash of 20% or more.
-- Year-by-year table with CSV download, and a share image for each scenario.
+Choose an amount and a period. Each asset shows what your money buys at the end, in start-year
+dollars, and its real return per year. A small plaster coin erodes into crystal by the share of
+buying power the asset lost. The view is kept in the URL, so you can share it.
 
 ## Data
 
-All numbers on the page are calculated in the browser from one file, [`data/returns.json`](data/returns.json).
+All numbers are calculated in the browser from one file, [`data/returns.json`](data/returns.json)
+(also loaded as `data/returns.js`).
 
-- Annual total returns (S&P 500 with dividends, T-bills, 10-year Treasury, Baa corporate, real estate, gold): [Aswath Damodaran, NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histret.html)
-- Inflation: CPI-U, not seasonally adjusted, December over December ([FRED CPIAUCNS](https://fred.stlouisfed.org/series/CPIAUCNS) / BLS)
-- Current year to date: S&P 500 Total Return index (^SP500TR) and the latest CPI month
-- S&P 500 companies: [datasets/s-and-p-500-companies](https://github.com/datasets/s-and-p-500-companies)
+- Annual total returns: [Aswath Damodaran, NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histret.html)
+- Inflation: CPI-U, not seasonally adjusted, December over December ([FRED CPIAUCNS](https://fred.stlouisfed.org/series/CPIAUCNS))
 
 To update the data:
 

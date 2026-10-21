@@ -1,4 +1,4 @@
-"""Rebuild data/returns.json and data/constituents.csv from the original sources.
+"""Rebuild data/returns.json and data/returns.js from the original sources.
 
 Usage:
     pip install xlrd
@@ -24,7 +24,6 @@ UA_BROWSER = {"User-Agent": "Mozilla/5.0"}
 DAMODARAN = "https://pages.stern.nyu.edu/~adamodar/pc/datasets/histretSP.xls"
 FRED_CPI = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCNS"
 SP500TR = "https://query1.finance.yahoo.com/v8/finance/chart/%5ESP500TR?range=2y&interval=1d"
-CONSTITUENTS = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv"
 
 
 def get(url, headers=UA_CURL):
@@ -120,7 +119,6 @@ def main():
     (ROOT / "data" / "returns.json").write_text(text + "\n")
     # Same data as a script, so the page can render before first paint without a fetch.
     (ROOT / "data" / "returns.js").write_text(f"window.RETURNS_DATA = {text};\n")
-    (ROOT / "data" / "constituents.csv").write_bytes(get(CONSTITUENTS))
     print(f"{years[0]}-{last}, {len(years)} years; ytd={ytd}")
 
 

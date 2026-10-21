@@ -204,10 +204,11 @@
         ctx.font = `600 ${R * 1.06}px Geist, system-ui, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        engrave(ctx, t, () => ctx.fillText('$', cx, cy + R * 0.05), unit * 1.8);
+        // At least one pixel of relief, so small coins still show the engraving.
+        engrave(ctx, t, () => ctx.fillText('$', cx, cy + R * 0.05), Math.max(1, unit * 1.8));
 
         // Text around the rim.
-        const text = `PURCHASING POWER · ONE DOLLAR · ${label} · `;
+        const text = label ? `PURCHASING POWER · ONE DOLLAR · ${label} · ` : 'PURCHASING POWER · ONE DOLLAR · ';
         ctx.font = `600 ${R * 0.072}px Geist, system-ui, sans-serif`;
         const ring = R * 0.8;
         const chars = [...text];
@@ -228,7 +229,7 @@
         // Plaster pores and grain.
         const r = mulberry32(SEED + 2);
         ctx.fillStyle = t.pore;
-        for (let p = 0; p < 260; p++) {
+        for (let p = 0, pores = Math.min(260, Math.round(S / 3)); p < pores; p++) {
             const ang = r() * Math.PI * 2, d = Math.sqrt(r()) * R;
             ctx.beginPath();
             ctx.arc(cx + Math.cos(ang) * d, cy + Math.sin(ang) * d, unit * (0.4 + r() * 1.1), 0, Math.PI * 2);
