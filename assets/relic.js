@@ -201,14 +201,14 @@
         ctx.beginPath(); ctx.arc(cx, cy, R * 0.925, 0, Math.PI * 2); ctx.stroke();
 
         // Incised dollar sign.
-        ctx.font = `600 ${R * 1.06}px "Inter Tight", Inter, system-ui, sans-serif`;
+        ctx.font = `600 ${R * 1.06}px Geist, system-ui, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         engrave(ctx, t, () => ctx.fillText('$', cx, cy + R * 0.05), unit * 1.8);
 
         // Text around the rim.
         const text = `PURCHASING POWER · ONE DOLLAR · ${label} · `;
-        ctx.font = `500 ${R * 0.072}px "IBM Plex Mono", ui-monospace, monospace`;
+        ctx.font = `600 ${R * 0.072}px Geist, system-ui, sans-serif`;
         const ring = R * 0.8;
         const chars = [...text];
         const total = chars.reduce((w, ch) => w + ctx.measureText(ch).width, 0);

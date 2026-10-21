@@ -313,7 +313,7 @@
     const charts = {};
 
     function chartBase() {
-        Chart.defaults.font.family = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif';
+        Chart.defaults.font.family = 'Geist, system-ui, -apple-system, "Segoe UI", sans-serif';
         Chart.defaults.font.weight = 400;
         Chart.defaults.font.size = 11;
         Chart.defaults.color = cssVar('--muted');
@@ -362,10 +362,9 @@
             const c = chart.ctx;
             let lastLabelX = -Infinity;
             c.save();
-            c.font = '500 9.5px "IBM Plex Mono", ui-monospace, monospace';
+            c.font = `500 11px ${Chart.defaults.font.family}`;
             c.textBaseline = 'top';
-            for (const [year, name] of EVENTS) {
-                const label = name.toUpperCase();
+            for (const [year, label] of EVENTS) {
                 const xv = year + 0.5;
                 if (xv < xs.min || xv > xs.max) continue;
                 const x = xs.getPixelForValue(xv);
@@ -694,8 +693,7 @@
         const W = 1200, H = 630;
         const cv = el('canvas', { width: W, height: H });
         const c = cv.getContext('2d');
-        const display = (w, px) => `${w} ${px}px "Inter Tight", Inter, system-ui, sans-serif`;
-        const mono = px => `500 ${px}px "IBM Plex Mono", ui-monospace, monospace`;
+        const font = (w, px) => `${w} ${px}px Geist, system-ui, sans-serif`;
         const ink = '#1e1d1b', ink2 = '#4f4c46', muted = '#7a766d', wall = '#a8a398', blue = '#2b7fae';
 
         c.fillStyle = '#efede8';
@@ -703,16 +701,16 @@
         if (window.Relic) Relic.paintTo(c, 660, 40, 540, { erosion: lost, theme: 'light', label: String(state.from) });
 
         c.textBaseline = 'alphabetic';
-        c.fillStyle = muted; c.font = mono(16);
-        c.fillText(`EXHIBIT · S&P 500 AFTER INFLATION · ${state.from}–${state.to}`, 64, 92);
+        c.fillStyle = muted; c.font = font(500, 20);
+        c.fillText(`S&P 500 after inflation · ${state.from}–${state.to}`, 64, 92);
 
         // Shrink the headline until it fits beside the coin.
         const nom = money(sim.nominal), real = money(sim.realValue);
         let size = 76;
-        c.font = display(700, size);
+        c.font = font(700, size);
         while (size > 40 && Math.max(c.measureText(`Your ${nom}`).width, c.measureText(`is really ${real}.`).width) > 600) {
             size -= 2;
-            c.font = display(700, size);
+            c.font = font(700, size);
         }
         const y1 = 200, y2 = y1 + size * 1.02;
         let x = 64;
@@ -726,22 +724,22 @@
         c.fillStyle = blue; c.fillText(real, x, y2); x += c.measureText(real).width;
         c.fillStyle = ink; c.fillText('.', x, y2);
 
-        c.font = '500 22px Inter, system-ui, sans-serif'; c.fillStyle = ink2;
+        c.font = font(500, 22); c.fillStyle = ink2;
         const lead = state.monthly > 0 ? `${money(state.amount)} + ${money(state.monthly)}/month` : money(state.amount);
         c.fillText(`${lead} in the S&P 500, in ${state.from} dollars.`, 64, y2 + 58);
 
         const stats = [
-            ['REAL RETURN / YEAR', pct(sim.realCagr)],
-            ['BEFORE INFLATION', pct(sim.nominalCagr)],
-            ['PRICES ROSE', pct(sim.cpi - 1)],
+            ['Real return per year', pct(sim.realCagr)],
+            ['Before inflation', pct(sim.nominalCagr)],
+            ['Prices rose', pct(sim.cpi - 1)],
         ];
         stats.forEach(([k, v], i) => {
             const sx = 64 + i * 200;
-            c.fillStyle = muted; c.font = mono(14); c.fillText(k, sx, 478);
-            c.fillStyle = ink; c.font = display(600, 40); c.fillText(v, sx, 524);
+            c.fillStyle = muted; c.font = font(500, 18); c.fillText(k, sx, 478);
+            c.fillStyle = ink; c.font = font(600, 40); c.fillText(v, sx, 524);
         });
-        c.fillStyle = muted; c.font = mono(15);
-        c.fillText('REALRETURNS.XYZ · DAMODARAN (NYU STERN) · BLS CPI-U', 64, 588);
+        c.fillStyle = muted; c.font = font(500, 18);
+        c.fillText('realreturns.xyz · Data: Damodaran (NYU Stern), BLS CPI-U', 64, 588);
 
         cv.toBlob(b => b && saveBlob(b, `realreturns-${state.from}-${state.to}.png`), 'image/png');
     }
@@ -778,15 +776,40 @@
     }
 
     // ---------- Form ----------
-    function fillYearSelects() {
-        const opts = () => D.years.map(y => el('option', { value: y, text: String(y) }));
-        $('#fromYear').replaceChildren(...opts());
-        $('#toYear').replaceChildren(...opts());
+    function setupYearRange() {
+        for (const input of [$('#fromYear'), $('#toYear')]) {
+            input.min = D.firstYear;
+            input.max = D.lastYear;
+        }
+    }
+
+    // Updates the period text and the filled part of the timeline.
+    function paintPeriod(from, to) {
+        const span = D.lastYear - D.firstYear;
+        const fill = $('#yearFill');
+        fill.style.left = ((from - D.firstYear) / span) * 100 + '%';
+        fill.style.right = ((D.lastYear - to) / span) * 100 + '%';
+        // When the handles meet in the right half, put the start handle on top so it can move left.
+        $('#fromYear').style.zIndex = from === to && from > (D.firstYear + D.lastYear) / 2 ? 2 : '';
+        const n = to - from + 1;
+        $('#periodText').textContent = from === to ? String(from) : `${from} – ${to}`;
+        $('#periodLen').textContent = `${n} year${n > 1 ? 's' : ''}`;
+    }
+
+    // Keeps start <= end while a handle moves: the moving handle pushes the other one.
+    function readYears(moving) {
+        const f = $('#fromYear'), t = $('#toYear');
+        let from = +f.value, to = +t.value;
+        if (from > to) {
+            if (moving === f) { to = from; t.value = to; } else { from = to; f.value = from; }
+        }
+        return { from, to };
     }
 
     function syncForm() {
         $('#fromYear').value = state.from;
         $('#toYear').value = state.to;
+        paintPeriod(state.from, state.to);
         $('#amount').value = state.amount;
         $('#monthly').value = state.monthly;
         $('#fee').value = state.fee;
@@ -800,11 +823,9 @@
     let debounce;
     function bindForm() {
         const read = () => {
-            state.from = +$('#fromYear').value;
-            state.to = +$('#toYear').value;
-            if (state.from > state.to) {
-                if (document.activeElement === $('#fromYear')) state.to = state.from; else state.from = state.to;
-            }
+            const years = readYears(document.activeElement);
+            state.from = years.from;
+            state.to = years.to;
             state.amount = clamp(+$('#amount').value || 0, 0, 1e12);
             state.monthly = clamp(+$('#monthly').value || 0, 0, 1e9);
             state.fee = clamp(+$('#fee').value || 0, 0, 2);
@@ -812,7 +833,10 @@
         };
         $('#calcForm').addEventListener('change', () => { read(); syncForm(); update(); });
         $('#calcForm').addEventListener('input', e => {
-            if (e.target.type === 'range') {
+            if (e.target.classList.contains('year-input')) {
+                const { from, to } = readYears(e.target);
+                paintPeriod(from, to);
+            } else if (e.target.type === 'range') {
                 $('#feeOut').textContent = (+$('#fee').value).toFixed(2) + '%';
                 $('#taxOut').textContent = (+$('#tax').value).toFixed(2) + '%';
             }
@@ -976,7 +1000,7 @@
         realPrefix = [0];
         for (let k = 0; k < D.years.length; k++) realPrefix.push(realPrefix[k] + Math.log((1 + D.sp500[k]) / (1 + D.inflation[k])));
 
-        fillYearSelects();
+        setupYearRange();
         readUrl();
         syncForm();
         bindForm();

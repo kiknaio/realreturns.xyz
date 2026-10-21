@@ -26,7 +26,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=optional" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=optional" rel="stylesheet">
     <link rel="stylesheet" href="assets/styles.css">
 
     <script>
@@ -80,7 +80,7 @@
     <header class="site-header">
         <div class="container header-row">
             <a class="brand" href="./">
-                <svg class="brand-mark" width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="var(--plaster-hi)" stroke="var(--wall)" stroke-width="1.5"/><path d="M18.5 2.2A14 14 0 0 1 29.8 13.6L24.5 15 21.6 10.4 17.4 8.6Z" fill="var(--series-1)"/><path d="M21.6 10.4 26 5.8M17.4 8.6 20.5 3" stroke="#dcf2fb" stroke-width="1"/><text x="13.5" y="21.5" text-anchor="middle" font-size="15" font-weight="600" fill="var(--wall)" font-family="Inter Tight, sans-serif">$</text></svg>
+                <svg class="brand-mark" width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="var(--plaster-hi)" stroke="var(--wall)" stroke-width="1.5"/><path d="M18.5 2.2A14 14 0 0 1 29.8 13.6L24.5 15 21.6 10.4 17.4 8.6Z" fill="var(--series-1)"/><path d="M21.6 10.4 26 5.8M17.4 8.6 20.5 3" stroke="#dcf2fb" stroke-width="1"/><text x="13.5" y="21.5" text-anchor="middle" font-size="15" font-weight="600" fill="var(--wall)" font-family="Geist, sans-serif">$</text></svg>
                 <span>realreturns<span class="brand-tld">.xyz</span></span>
             </a>
             <nav class="site-nav" aria-label="Sections">
@@ -107,7 +107,7 @@
         <!-- Hero: the default numbers are in the HTML so the page reads correctly before JS runs. -->
         <section class="hero" aria-labelledby="heroTitle">
             <div class="hero-text">
-                <p class="eyebrow">Exhibit · S&P 500 after inflation · <span id="dataUpdated">data through 2025</span></p>
+                <p class="eyebrow">S&P 500 after inflation · <span id="dataUpdated">data through 2025</span></p>
                 <h1 id="heroTitle">
                     Your <span class="hero-nominal" id="heroNominal">$83,034</span>
                     is really <span class="hero-real" id="heroReal">$48,762</span>.
@@ -131,7 +131,7 @@
         <!-- Calculator -->
         <section id="calculator" class="panel calc" aria-labelledby="calcTitle">
             <div class="panel-head">
-                <div><p class="room">Room 01 · The object</p><h2 id="calcTitle">Your scenario</h2></div>
+                <h2 id="calcTitle">Your scenario</h2>
                 <div class="share-actions">
                     <button type="button" class="btn" id="copyLink">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
@@ -153,15 +153,20 @@
                 <button type="button" class="chip" data-from="1928" data-to="2025">All since 1928</button>
             </div>
 
-            <form class="calc-grid" id="calcForm" onsubmit="return false">
-                <label class="field">
-                    <span class="field-label">Start of</span>
-                    <select id="fromYear" name="from"></select>
-                </label>
-                <label class="field">
-                    <span class="field-label">End of</span>
-                    <select id="toYear" name="to"></select>
-                </label>
+            <form class="calc-form" id="calcForm" onsubmit="return false">
+                <div class="period">
+                    <div class="period-head">
+                        <span class="field-label">Period</span>
+                        <span class="period-value"><span id="periodText">2005 – 2025</span> <span class="period-len" id="periodLen">21 years</span></span>
+                    </div>
+                    <div class="year-range">
+                        <div class="year-track"><div class="year-fill" id="yearFill"></div></div>
+                        <input class="year-input" type="range" id="fromYear" name="from" aria-label="Start year (start of year)" min="1928" max="2025" step="1" value="2005">
+                        <input class="year-input" type="range" id="toYear" name="to" aria-label="End year (end of year)" min="1928" max="2025" step="1" value="2025">
+                    </div>
+                    <div class="year-ticks" aria-hidden="true"><span style="left:2.06%">1930</span><span style="left:12.37%">1940</span><span style="left:22.68%">1950</span><span style="left:32.99%">1960</span><span style="left:43.30%">1970</span><span style="left:53.61%">1980</span><span style="left:63.92%">1990</span><span style="left:74.23%">2000</span><span style="left:84.54%">2010</span><span style="left:94.85%">2020</span></div>
+                </div>
+                <div class="calc-grid">
                 <label class="field">
                     <span class="field-label">Initial amount</span>
                     <span class="input-affix"><span>$</span><input id="amount" name="amount" type="number" inputmode="decimal" min="0" step="1000" value="10000"></span>
@@ -178,31 +183,28 @@
                     <span class="field-label">Tax drag <button type="button" class="tip" data-tip="Return lost each year to tax on dividends in a taxable account. About 0.3%–0.6% per year for many US investors. 0% in a tax-free account.">?</button> <output id="taxOut">0.00%</output></span>
                     <input id="tax" name="tax" type="range" min="0" max="2" step="0.05" value="0">
                 </label>
+                </div>
             </form>
 
             <div class="stats-grid" id="stats">
                 <div class="stat-card with-spark">
-                    <div class="stat-no">No. 1</div>
                     <div class="stat-label">Real return per year <button type="button" class="tip" data-tip="Compound annual growth rate after inflation. Before inflation it is the nominal rate below.">?</button></div>
                     <div class="stat-value" id="statReal">7.8%</div>
                     <div class="stat-detail" id="statRealDetail">10.6% before inflation</div>
                     <svg class="spark" id="sparkReal" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"></svg>
                 </div>
                 <div class="stat-card with-spark">
-                    <div class="stat-no">No. 2</div>
                     <div class="stat-label">Prices rose</div>
                     <div class="stat-value" id="statInfl">+70.3%</div>
                     <div class="stat-detail" id="statInflDetail">$1 now buys what $0.59 bought in 2005 · 2.6% a year</div>
                     <svg class="spark" id="sparkInfl" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"></svg>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-no">No. 3</div>
                     <div class="stat-label">Break-even <button type="button" class="tip" data-tip="The dollar amount you needed at the end only to keep the same purchasing power as the money you put in.">?</button></div>
                     <div class="stat-value" id="statBreakeven">$17,029</div>
                     <div class="stat-detail" id="statBreakevenDetail">needed just to keep up with prices</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-no">No. 4</div>
                     <div class="stat-label">Worst year after inflation</div>
                     <div class="stat-value" id="statWorst">−36.6%</div>
                     <div class="stat-detail" id="statWorstDetail">2008 · best: 2013, +30.2%</div>
@@ -214,7 +216,6 @@
         <section class="panel" aria-labelledby="growthTitle">
             <div class="panel-head">
                 <div>
-                    <p class="room">Room 02 · Erosion over time</p>
                     <h2 id="growthTitle">Growth of your money</h2>
                     <p class="panel-sub" id="growthSub">Real value is in 2005 dollars. Dashed lines mark major events.</p>
                 </div>
@@ -230,7 +231,6 @@
         <section id="compare" class="panel" aria-labelledby="compareTitle">
             <div class="panel-head">
                 <div>
-                    <p class="room">Room 03 · Other materials</p>
                     <h2 id="compareTitle">Did it beat inflation?</h2>
                     <p class="panel-sub" id="compareSub">Real return per year, 2005–2025, one lump sum, before fees and taxes.</p>
                 </div>
@@ -246,7 +246,6 @@
         <section id="holding" class="panel" aria-labelledby="holdTitle">
             <div class="panel-head">
                 <div>
-                    <p class="room">Room 04 · Time in the market</p>
                     <h2 id="holdTitle">Does holding longer help?</h2>
                     <p class="panel-sub">How often the S&P 500 beat inflation, for every period since 1928. Choose how long you hold.</p>
                 </div>
@@ -287,7 +286,6 @@
         <section id="drawdowns" class="panel" aria-labelledby="ddTitle">
             <div class="panel-head">
                 <div>
-                    <p class="room">Room 05 · Collapse and recovery</p>
                     <h2 id="ddTitle">How long crashes really lasted</h2>
                     <p class="panel-sub">S&P 500 falls of 20% or more after inflation (year-end values). Recovery takes much longer in real terms.</p>
                 </div>
@@ -313,7 +311,6 @@
         <section id="table" class="panel" aria-labelledby="tableTitle">
             <div class="panel-head">
                 <div>
-                    <p class="room">Room 06 · Catalogue</p>
                     <h2 id="tableTitle">Year by year</h2>
                     <p class="panel-sub" id="tableSub">Values at the end of each year.</p>
                 </div>
@@ -343,7 +340,6 @@
 
         <!-- Learn -->
         <section class="learn" aria-labelledby="learnTitle">
-            <p class="room">Reading room</p>
             <h2 id="learnTitle">Understand the numbers</h2>
             <div class="method-grid">
                 <div class="method-card">
