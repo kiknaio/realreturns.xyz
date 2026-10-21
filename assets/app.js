@@ -162,6 +162,117 @@
         return { nominal, real, cpi, path, perYear: Math.pow(real / amount, 1 / n) - 1, lost: Math.max(0, 1 - real / amount) };
     }
 
+    // Current color theme: the toggle's choice, or the system setting.
+    function theme() {
+        const t = document.documentElement.dataset.theme;
+        if (t) return t;
+        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+
+    // ---------- Logo fire ----------
+    // Small flames rise from the charred edge of the logo bill. The emitters are the dark pixels
+    // that touch transparency on the burned (right) side of the logo image.
+    function startLogoFire() {
+        const img = $('.brand-mark'), cv = $('#logoFire');
+        if (!img || !cv || reducedMotion()) return;
+        const ready = img.complete && img.naturalWidth ? Promise.resolve() : new Promise(r => img.addEventListener('load', r, { once: true }));
+        ready.then(() => {
+            const W = img.naturalWidth, H = img.naturalHeight;
+            const probe = document.createElement('canvas');
+            probe.width = W; probe.height = H;
+            const pctx = probe.getContext('2d', { willReadFrequently: true });
+            pctx.drawImage(img, 0, 0);
+            const d = pctx.getImageData(0, 0, W, H).data;
+            const alpha = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? 0 : d[(y * W + x) * 4 + 3]);
+            const edge = [];
+            for (let y = 0; y < H; y++) {
+                for (let x = Math.floor(W * 0.35); x < W; x++) {
+                    const i = (y * W + x) * 4;
+                    if (d[i + 3] < 120 || d[i] + d[i + 1] + d[i + 2] > 330) continue;   // only opaque, charred pixels
+                    if (alpha(x + 1, y) < 20 || alpha(x, y - 1) < 20 || alpha(x, y + 1) < 20 || alpha(x - 1, y) < 20) edge.push([x, y]);
+                }
+            }
+            if (!edge.length) return;
+
+            const ctx = cv.getContext('2d');
+            let map = null;
+            const layout = () => {
+                const dpr = Math.min(2, window.devicePixelRatio || 1);
+                const cr = cv.getBoundingClientRect(), ir = img.getBoundingClientRect();
+                cv.width = Math.round(cr.width * dpr);
+                cv.height = Math.round(cr.height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const k = ir.width / W;
+                map = ([x, y]) => [ir.left - cr.left + x * k, ir.top - cr.top + y * k];
+            };
+            layout();
+            window.addEventListener('resize', layout);
+
+            const sparks = [], smoke = [];
+            const rand = (a, b) => a + Math.random() * (b - a);
+            const tick = () => {
+                const cr = cv.getBoundingClientRect();
+                const dark = theme() === 'dark';
+                ctx.clearRect(0, 0, cr.width, cr.height);
+                // New flames from random points on the burned edge.
+                for (let n = 0; n < 4; n++) {
+                    const [x, y] = map(edge[(Math.random() * edge.length) | 0]);
+                    sparks.push({ x, y, vx: rand(-0.1, 0.1), vy: rand(-0.8, -0.35), r: rand(1.1, 2.4), age: 0, life: rand(22, 44), seed: Math.random() * 6 });
+                }
+
+                // Smoke: faint gray wisps that rise slowly above the flames.
+                ctx.globalCompositeOperation = 'source-over';
+                for (let i = smoke.length - 1; i >= 0; i--) {
+                    const s = smoke[i];
+                    s.age++;
+                    if (s.age > s.life) { smoke.splice(i, 1); continue; }
+                    const t = s.age / s.life;
+                    s.x += Math.sin(s.age * 0.08 + s.seed) * 0.15;
+                    s.y += s.vy;
+                    ctx.fillStyle = dark ? `rgba(200, 190, 180, ${0.1 * (1 - t)})` : `rgba(90, 80, 70, ${0.13 * (1 - t)})`;
+                    ctx.beginPath(); ctx.arc(s.x, s.y, 1.2 + t * 3.5, 0, Math.PI * 2); ctx.fill();
+                }
+
+                // Flames: tall teardrops, yellow core, orange middle, red tips. Additive glow only on dark.
+                ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
+                for (let i = sparks.length - 1; i >= 0; i--) {
+                    const s = sparks[i];
+                    s.age++;
+                    if (s.age > s.life) {
+                        if (Math.random() < 0.35) smoke.push({ x: s.x, y: s.y, vy: rand(-0.35, -0.2), age: 0, life: rand(40, 70), seed: Math.random() * 6 });
+                        sparks.splice(i, 1);
+                        continue;
+                    }
+                    const t = s.age / s.life;
+                    s.x += s.vx + Math.sin(s.age * 0.3 + s.seed) * 0.14;
+                    s.y += s.vy;
+                    const r = s.r * (1 - t * 0.7);
+                    const a = (1 - t) * (t < 0.12 ? t / 0.12 : 1);
+                    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 1.8);
+                    g.addColorStop(0, `rgba(255, 214, 110, ${0.95 * a})`);
+                    g.addColorStop(0.45, `rgba(250, 128, 34, ${0.75 * a})`);
+                    g.addColorStop(1, `rgba(200, 52, 22, 0)`);
+                    ctx.save();
+                    ctx.translate(s.x, s.y);
+                    ctx.scale(1, 1.9);
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(0, 0, r * 1.8, 0, Math.PI * 2); ctx.fill();
+                    ctx.restore();
+                }
+
+                // Glowing embers along the rim.
+                for (let n = 0; n < 5; n++) {
+                    const [x, y] = map(edge[(Math.random() * edge.length) | 0]);
+                    ctx.fillStyle = `rgba(255, ${(90 + Math.random() * 70) | 0}, 30, ${rand(0.25, 0.6)})`;
+                    ctx.beginPath(); ctx.arc(x, y, rand(0.5, 1.1), 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.globalCompositeOperation = 'source-over';
+                requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+        });
+    }
+
     // ---------- Intro ----------
     // What one dollar from the start of the period buys at five points, one under each note in the image.
     // ---------- Burned bills ----------
@@ -717,6 +828,7 @@
 
     function init() {
         bindTheme();
+        startLogoFire();
         // data/returns.js sets the data synchronously, so the page renders in one pass.
         D = window.RETURNS_DATA;
         if (!D) { toast('Could not load the data. Reload the page.'); return; }
