@@ -1,5 +1,5 @@
 /*
- * Look: quiet plaster (light) or volcanic ash (dark), a calcite-blue accent, pastel asset
+ * Look: quiet plaster (light) or volcanic ash (dark), a terracotta clay accent, pastel asset
  * colors, a light grain, and one typeface: Geist. The eroded sculptures are the art.
  */
 :root {
@@ -24,9 +24,9 @@
     --series-6: #7fae86;
     --neutral-series: #a8a196;
     --good: #3f7a52;
-    --critical: #a9553e;
-    --focus: #4f86ad;
-    --accent: #4f86ad;
+    --critical: #8e3b4a;
+    --focus: #b46a4e;
+    --accent: #b46a4e;
     --cast: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(60, 52, 40, 0.06), 0 12px 32px -12px rgba(60, 52, 40, 0.18);
     --shadow: 0 12px 40px rgba(60, 52, 40, 0.16);
     --grain-opacity: 0.35;
@@ -56,9 +56,9 @@
         --series-6: #8fbf96;
         --neutral-series: #a39d92;
         --good: #8cc49a;
-        --critical: #e59a82;
-        --focus: #6fa9d4;
-        --accent: #6fa9d4;
+        --critical: #e09aa8;
+        --focus: #d99a80;
+        --accent: #d99a80;
         --cast: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
         --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         --grain-opacity: 0.22;
@@ -86,9 +86,9 @@
     --series-6: #8fbf96;
     --neutral-series: #a39d92;
     --good: #8cc49a;
-    --critical: #e59a82;
-    --focus: #6fa9d4;
-    --accent: #6fa9d4;
+    --critical: #e09aa8;
+    --focus: #d99a80;
+    --accent: #d99a80;
     --cast: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
     --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     --grain-opacity: 0.22;
@@ -142,24 +142,36 @@ a { color: inherit; }
     :root:not([data-theme="light"]) .icon-moon { display: none; }
 }
 
-/* Hero */
-.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: center; padding: 40px 0 48px; }
-@media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding: 24px 0 32px; } }
+/* Hero: headline and intro, then the eroding banknotes full width with the dollar values under them. */
+.hero { padding: 40px 0 56px; }
+.hero-text { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; align-items: end; }
+@media (max-width: 860px) { .hero-text { grid-template-columns: 1fr; gap: 0; } .hero { padding: 20px 0 40px; } }
 .hero h1 {
     font-family: var(--font-display); font-weight: 600;
     font-size: clamp(46px, 7.4vw, 92px); line-height: 0.96; letter-spacing: -0.055em; max-width: 9ch;
 }
 .hero h1 em { font-style: normal; color: var(--accent); }
-.intro { margin-top: 26px; font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 36ch; }
+.intro { font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 36ch; padding-bottom: 8px; }
+@media (max-width: 860px) { .intro { margin-top: 22px; } }
 
-.relic { display: flex; flex-direction: column; align-items: center; }
-#relicCanvas { width: 100%; max-width: 440px; aspect-ratio: 1; display: block; }
-@media (max-width: 860px) { #relicCanvas { max-width: 340px; } }
-.placard {
-    margin-top: -18px; display: grid; gap: 2px; text-align: center;
-    font-size: 13px; color: var(--muted);
+.sequence { margin-top: 28px; }
+/* The photo's studio wall is lifted to white and multiplied onto the page, so the notes stand on the page itself. */
+#heroImg {
+    display: block; width: 100%; height: auto;
+    filter: brightness(1.11) contrast(1.04); mix-blend-mode: multiply;
+    -webkit-mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(transparent, #000 10%, #000 90%, transparent);
 }
-.placard-title { color: var(--ink); font-weight: 600; font-size: 14px; }
+:root[data-theme="dark"] #heroImg { filter: none; mix-blend-mode: normal; border-radius: 24px; -webkit-mask-image: none; mask-image: none; }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #heroImg { filter: none; mix-blend-mode: normal; border-radius: 24px; -webkit-mask-image: none; mask-image: none; }
+}
+.dollar-steps { list-style: none; position: relative; height: 52px; margin-top: 4px; }
+.dollar-steps li { position: absolute; transform: translateX(-50%); display: grid; justify-items: center; font-variant-numeric: tabular-nums; }
+.dollar-steps strong { font-size: clamp(16px, 2.2vw, 24px); font-weight: 600; letter-spacing: -0.03em; }
+.dollar-steps li:last-child strong { color: var(--accent); }
+.dollar-steps span { font-size: 13px; color: var(--muted); }
+.sequence-caption { text-align: center; font-size: 13px; color: var(--muted); margin-top: 6px; }
 
 /* Controls: amount and period */
 .controls {

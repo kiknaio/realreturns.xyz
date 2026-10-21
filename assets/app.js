@@ -162,36 +162,22 @@
         return { nominal, real, cpi, path, perYear: Math.pow(real / amount, 1 / n) - 1, lost: Math.max(0, 1 - real / amount) };
     }
 
-    // ---------- Intro and the hero coin ----------
-    const relic = { shown: 0, raf: 0, label: '' };
-
-    function sizeCanvas(cv) {
-        const px = Math.round(cv.clientWidth * Math.min(2, window.devicePixelRatio || 1));
-        if (px > 0 && cv.width !== px) { cv.width = px; cv.height = px; }
-    }
-
-    function theme() {
-        const t = document.documentElement.dataset.theme;
-        if (t) return t;
-        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-    }
-
-    function paintHero() {
-        if (window.Relic) Relic.paint($('#relicCanvas'), { erosion: relic.shown, theme: theme(), label: relic.label });
-    }
-
-    function setHeroErosion(target, label) {
-        relic.label = label;
-        cancelAnimationFrame(relic.raf);
-        if (!motion()) { relic.shown = target; paintHero(); return; }
-        const start = relic.shown, t0 = performance.now(), dur = 1000;
-        const step = now => {
-            const t = Math.min(1, (now - t0) / dur);
-            relic.shown = start + (target - start) * (1 - Math.pow(1 - t, 3));
-            paintHero();
-            if (t < 1) relic.raf = requestAnimationFrame(step);
-        };
-        relic.raf = requestAnimationFrame(step);
+    // ---------- Intro ----------
+    // What one dollar from the start of the period buys at five points, one under each note in the image.
+    function renderSteps() {
+        const { from, to } = state;
+        const n = to - from + 1;
+        const years = [from, ...[0.25, 0.5, 0.75, 1].map(f => Math.round(from - 1 + f * n))];
+        const items = $$('#dollarSteps li');
+        let cpi = 1, y = from;
+        years.forEach((year, k) => {
+            if (k > 0) for (; y <= year; y++) cpi *= 1 + D.inflation[idx(y)];
+            items[k].querySelector('strong').textContent = '$' + (1 / cpi).toFixed(2);
+            items[k].querySelector('span').textContent = String(year);
+        });
+        $('#seqCaption').textContent = from === to
+            ? `One dollar at the start of ${from}, and what it buys at the end of the year.`
+            : `One dollar at the start of ${from}, and what it buys at the end of each year shown.`;
     }
 
     function renderIntro(cash) {
@@ -202,13 +188,7 @@
         } else {
             $('#introText').textContent = `Prices fell ${pct(1 - cash.cpi, 0, false)} ${span}, so even cash gained buying power. Here is how each asset did.`;
         }
-        $('#plTitle').textContent = `One dollar, ${from}`;
-        $('#plBody').textContent = cash.lost > 0
-            ? `Plaster and calcite. ${pct(cash.lost, 0, false)} eroded by the end of ${to}.`
-            : `Plaster. Not eroded: prices fell by the end of ${to}.`;
-        $('#relicCanvas').setAttribute('aria-label',
-            `A plaster one-dollar coin. ${pct(cash.lost, 0, false)} of it has eroded into blue crystal: the buying power cash lost from ${from} to ${to}.`);
-        setHeroErosion(cash.lost, String(from));
+        renderSteps();
     }
 
     // ---------- Asset rows ----------
@@ -649,14 +629,12 @@
         readUrl();
         bindControls();
         bindModal();
-        sizeCanvas($('#relicCanvas'));
         update();
 
-        new ResizeObserver(() => { sizeCanvas($('#relicCanvas')); paintHero(); }).observe($('#relicCanvas'));
-        // Repaint once web fonts load, so the coin engraving and chart text use them.
+        // Redraw once web fonts load, so the chart text uses them.
         // Animations start only after that, when the reader changes something.
         const ready = document.fonts ? document.fonts.ready : Promise.resolve();
-        ready.then(() => { window.Relic?.reset(); render(); }).finally(() => { animate = true; });
+        ready.then(() => render()).finally(() => { animate = true; });
         const linked = ASSETS.find(a => `#${a.img}` === location.hash);
         if (linked) openAsset(linked.key);
         // Smooth scrolling only after load, so a reload with #section does not glide.

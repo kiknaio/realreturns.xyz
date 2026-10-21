@@ -20,7 +20,7 @@
     <meta name="twitter:description" content="The S&P 500, gold, bonds, homes and cash after inflation. Any period since 1928.">
     <meta name="twitter:image" content="https://realreturns.xyz/og-image.png">
 
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23e7e5df' stroke='%23a8a398' stroke-width='1.5'/><path d='M18.5 2.2A14 14 0 0 1 29.8 13.6L24.5 15 21.6 10.4 17.4 8.6Z' fill='%232b7fae'/><path d='M21.6 10.4 26 5.8M17.4 8.6 20.5 3' stroke='%23dcf2fb' stroke-width='1'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23e7e5df' stroke='%23a8a398' stroke-width='1.5'/><path d='M18.5 2.2A14 14 0 0 1 29.8 13.6L24.5 15 21.6 10.4 17.4 8.6Z' fill='%23b46a4e'/><path d='M21.6 10.4 26 5.8M17.4 8.6 20.5 3' stroke='%23f6dccf' stroke-width='1'/></svg>">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,7 +59,7 @@
     <header class="site-header">
         <div class="container header-row">
             <a class="brand" href="./">
-                <svg class="brand-mark" width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="var(--plaster-hi)" stroke="var(--wall)" stroke-width="1.5"/><path d="M18.5 2.2A14 14 0 0 1 29.8 13.6L24.5 15 21.6 10.4 17.4 8.6Z" fill="var(--accent)"/><path d="M21.6 10.4 26 5.8M17.4 8.6 20.5 3" stroke="#dcf2fb" stroke-width="1"/><text x="13.5" y="21.5" text-anchor="middle" font-size="15" font-weight="600" fill="var(--wall)" font-family="Geist, sans-serif">$</text></svg>
+                <svg class="brand-mark" width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="var(--plaster-hi)" stroke="var(--wall)" stroke-width="1.5"/><path d="M18.5 2.2A14 14 0 0 1 29.8 13.6L24.5 15 21.6 10.4 17.4 8.6Z" fill="var(--accent)"/><path d="M21.6 10.4 26 5.8M17.4 8.6 20.5 3" stroke="#f6dccf" stroke-width="1"/><text x="13.5" y="21.5" text-anchor="middle" font-size="15" font-weight="600" fill="var(--wall)" font-family="Geist, sans-serif">$</text></svg>
                 <span>realreturns<span class="brand-tld">.xyz</span></span>
             </a>
             <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch color theme">
@@ -76,12 +76,17 @@
                 <h1 id="heroTitle">What your money <em>really</em> buys.</h1>
                 <p class="intro" id="introText">Prices rose 70% from 2005 to 2025. A dollar kept as cash lost 41% of its buying power. Here is what kept up.</p>
             </div>
-            <figure class="relic">
-                <canvas id="relicCanvas" role="img" aria-label="A plaster one-dollar coin. 41% of it has eroded into blue crystal: the buying power cash lost from 2005 to 2025."></canvas>
-                <figcaption class="placard">
-                    <span class="placard-title" id="plTitle">One dollar, 2005</span>
-                    <span id="plBody">Plaster and calcite. 41% eroded by the end of 2025.</span>
-                </figcaption>
+            <figure class="sequence">
+                <img id="heroImg" src="assets/img/sequence.jpg" srcset="assets/img/sequence-800.jpg 800w, assets/img/sequence.jpg 1536w" sizes="(max-width: 1080px) 100vw, 1016px" width="1536" height="380" alt="Five white plaster banknotes in a row. The first is whole; each next one has eroded more into pale blue crystal, until the last is almost all crystal.">
+                <!-- What one dollar from the start year buys at five points in the period, one under each note. -->
+                <ol class="dollar-steps" id="dollarSteps" aria-label="What one dollar buys over the period">
+                    <li style="left: 11.3%"><strong>$1.00</strong><span>2005</span></li>
+                    <li style="left: 29.8%"><strong>$0.88</strong><span>2009</span></li>
+                    <li style="left: 48.8%"><strong>$0.81</strong><span>2014</span></li>
+                    <li style="left: 68.1%"><strong>$0.73</strong><span>2020</span></li>
+                    <li style="left: 88.1%"><strong>$0.59</strong><span>2025</span></li>
+                </ol>
+                <figcaption class="sequence-caption" id="seqCaption">One dollar at the start of 2005, and what it buys at the end of each year shown.</figcaption>
             </figure>
         </section>
 
@@ -147,7 +152,7 @@
             <h2 id="aboutTitle">How it works</h2>
             <div class="about-grid">
                 <p><strong>Buying power.</strong> We take the value of your money at the end and remove the price rise since the start. What is left is what it can buy, in start-year dollars.</p>
-                <p><strong>The art.</strong> Each asset is shown as a plaster cast that erodes into blue crystal, like a relic from the future. The coin at the top erodes by the buying power cash lost in your period.</p>
+                <p><strong>The art.</strong> Each asset is shown as a plaster cast that erodes into blue crystal, like a relic from the future: what time and inflation do to money.</p>
                 <p><strong>The data.</strong> Yearly total returns from Aswath Damodaran (NYU Stern). Inflation is US CPI, December to December. No fees or taxes.</p>
             </div>
             <p class="sources">
@@ -209,8 +214,6 @@
     <noscript><p class="container">Turn on JavaScript to change the amount and period.</p></noscript>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3-delaunay@6.0.4/dist/d3-delaunay.min.js"></script>
-    <script src="assets/relic.js"></script>
     <script src="data/returns.js"></script>
     <script src="assets/app.js"></script>
     <!-- Privacy-first analytics -->
